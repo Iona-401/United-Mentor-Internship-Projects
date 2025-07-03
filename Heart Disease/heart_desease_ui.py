@@ -1,12 +1,15 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QMessageBox, QWidget, QLineEdit, QFormLayout, QComboBox
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QMessageBox, QWidget, QLineEdit, QFormLayout, QComboBox
 from PyQt5.QtGui import QFont
+
+import joblib
+from output_page import OutputPage
 
 class HeartDiseaseInputForm(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.model = joblib.load("heart_disease_model.pkl")
 
     def init_ui(self):
         self.setWindowTitle('Heart Disease Input Form')
