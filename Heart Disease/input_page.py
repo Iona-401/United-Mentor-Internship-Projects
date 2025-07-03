@@ -8,8 +8,9 @@ from output_page import OutputPage
 class HeartDiseaseInputForm(QWidget):
     def __init__(self):
         super().__init__()
+        self.model = joblib.load("Heart Disease/model.pkl")
+        self.scaler = joblib.load("Heart Disease/scaler.pkl")
         self.init_ui()
-        self.model = joblib.load("heart_disease_model.pkl")
 
     def init_ui(self):
         self.setWindowTitle('Heart Disease Input Form')
@@ -90,24 +91,34 @@ class HeartDiseaseInputForm(QWidget):
         
     def on_submit(self):
         try:
-            input_data = {
-                "age": float(self.fields["age"].text()),
-                "sex": self.fields["sex"].currentData(),
-                "cp": self.fields["cp"].currentData(),
-                "restbp": float(self.fields["restbp"].text()),
-                "chol": float(self.fields["chol"].text()),
-                "fbs": self.fields["fbs"].currentData(),
-                "restecg": self.fields["restecg"].currentData(),
-                "mhr": float(self.fields["mhr"].text()),
-                "exang": self.fields["exang"].currentData(),
-                "oldpeak": float(self.fields["oldpeak"].text()),
-                "slope": self.fields["slope"].currentData()
-            }
+            input_data = []
             
-            print("Patient Input:", input_data)
-            QMessageBox.information(self, 'Success', 'Input data submitted successfully!')
-        except ValueError:
-            QMessageBox.warning(self, 'Error', 'Please enter valid numeric values for all fields.')
+            for key in ["age", "restbp", "chol", "mhr", "oldpeak"]:
+                value = float(self.fields[key].text())
+                if not value:
+                    raise ValueError(f"Invalid value for {key}")
+                input_data.append(float(value))
+
+            for key in ["sex", "cp", "fbs", "restecg", "exang", "slope"]:
+                value = self.fields[key].currentData()
+                if value is None:
+                    raise ValueError(f"Invalid value for {key}")
+                input_data.append(value)
+            
+            #Prediction
+            input_data = self.scaler.transform([input_data])[0]
+            prediction = self.model.predict([input_data])[0]
+            try:
+                prediction_proba = self.model.predict_proba([input_data])[0][1]
+            except:
+                prediction_proba = None
+            
+            self.result_page = OutputPage(prediction, prediction_proba)
+            self.result_page.show()
+            self.close()
+
+        except ValueError as e:
+            QMessageBox.critical(self, "Invalid Report", str(e))
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -9,6 +9,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from sklearn.linear_model import LogisticRegression
 
+import joblib
+import os
+
 # Load the dataset
 data = pd.read_csv("Heart Disease\dataset.csv")
 print(data.head())
@@ -43,13 +46,13 @@ features = X.columns
 sorted_indices = np.argsort(importance)[::-1]
 
 # Plotting the feature importance
-plt.figure(figsize=(10, 6))
-sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
-plt.title("Feature Importance")
-plt.xlabel("Importance")
-plt.ylabel("Features")
-plt.tight_layout()
-plt.show()
+#plt.figure(figsize=(10, 6))
+#sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
+#plt.title("Feature Importance")
+#plt.xlabel("Importance")
+#plt.ylabel("Features")
+#plt.tight_layout()
+#plt.show()
 
 # Logistic Regression Model to analyze coefficients
 log_model = LogisticRegression()
@@ -58,16 +61,28 @@ coefficients = log_model.coef_[0]
 coef_4f = pd.DataFrame({"Features": X.columns, "Coefficients": coefficients}).sort_values(by="Coefficients", key=abs, ascending=False)
 
 # Plotting the coefficients of the logistic regression model
-plt.figure(figsize=(10, 6))
-sns.barplot(x="Coefficients", y="Features", data=coef_4f)
-plt.title("Logistic Regression Coefficients")
-plt.xlabel("Effects on Probability of Heart Disease")
-plt.tight_layout()
-plt.show()
+#plt.figure(figsize=(10, 6))
+#sns.barplot(x="Coefficients", y="Features", data=coef_4f)
+#plt.title("Logistic Regression Coefficients")
+#plt.xlabel("Effects on Probability of Heart Disease")
+#plt.tight_layout()
+#plt.show()
 
 # Plotting the correlation heatmap
-plt.figure(figsize=(12, 8))
-sns.heatmap(data.corr(), annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5)
-plt.title("Correlation Heatmap")
-plt.tight_layout()
-plt.show()
+#plt.figure(figsize=(12, 8))
+#sns.heatmap(data.corr(), annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5)
+#plt.title("Correlation Heatmap")
+#plt.tight_layout()
+#plt.show()
+
+# Save the model and scaler
+output_dir = "Heart Disease"
+os.makedirs(output_dir, exist_ok=True)
+model_path = "Heart Disease/model.pkl"
+scaler_path = "Heart Disease/scaler.pkl"
+joblib.dump(model, model_path)
+joblib.dump(scaler, scaler_path)
+# Save the feature importance and coefficients
+importance_df = pd.DataFrame({"Features": X.columns, "Importance": importance})
+importance_path = "Heart Disease/importance.csv"
+importance_df.to_csv(importance_path, index=False)
