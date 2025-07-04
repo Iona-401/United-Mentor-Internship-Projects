@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QPushButton, QLabel, QMessageBox, QWid
 from PyQt5.QtGui import QFont
 
 import joblib
+import pandas as pd
 from output_page import OutputPage
 
 class HeartDiseaseInputForm(QWidget):
@@ -88,7 +89,7 @@ class HeartDiseaseInputForm(QWidget):
         layout.addRow(self.submit_button)
         
         self.setLayout(layout)
-        
+
     def on_submit(self):
         try:
             input_data = []
@@ -106,14 +107,16 @@ class HeartDiseaseInputForm(QWidget):
                 input_data.append(value)
             
             #Prediction
-            input_data = self.scaler.transform([input_data])[0]
-            prediction = self.model.predict([input_data])[0]
+            feature_names = ["age", "sex", "chest pain type", "resting bp s", "cholesterol", "fasting blood sugar", "resting ecg", "max heart rate", "exercise angina", "oldpeak", "ST slope"]
+            input_df = pd.DataFrame([input_data], columns=feature_names)
+            scaled_input = self.scaler.transform(input_df)
+            prediction = self.model.predict(scaled_input)[0]
             try:
-                prediction_proba = self.model.predict_proba([input_data])[0][1]
+                prediction_proba = self.model.predict_proba(scaled_input)[0][1]
             except:
                 prediction_proba = None
             
-            self.result_page = OutputPage(prediction, prediction_proba)
+            self.result_page = OutputPage(prediction, prediction_proba, input_data)
             self.result_page.show()
             self.close()
 
