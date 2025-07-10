@@ -5,6 +5,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -103,6 +104,20 @@ def evaluate_model(name, model, X_test, y_test):
     print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
     print("Classification Report:\n", classification_report(y_test, y_pred))
 
+def build_random_forest_pipeline(preprocessor):
+    """Build a Random Forest pipeline.
+
+    Args:
+        preprocessor (ColumnTransformer): The preprocessing pipeline.
+
+    Returns:
+        Pipeline: The Random Forest pipeline.
+    """
+    return Pipeline([
+        ("preprocessor", preprocessor),
+        ("classifier", RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced", n_jobs=-1))
+    ])
+
 def get_feature_names(preprocessor, X):
     """Get the feature names after preprocessing.
 
@@ -193,8 +208,14 @@ def main():
     log_model.fit(X_train, y_train)
     print("Logistic Regression trained.")
 
+    print("Training Random Forest...")
+    rf_model =  build_random_forest_pipeline(preprocessor)
+    rf_model.fit(X_train, y_train)
+    print("Random Forest trained.")
+
     print("Evaluating models...")
     evaluate_model("Logistic Regression", log_model, X_test, y_test)
+    evaluate_model("Random Forest", rf_model, X_test, y_test)
 
     plot_logistic_coefficients(log_model, X.columns.tolist())
     # Save the trained model
