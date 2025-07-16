@@ -16,8 +16,8 @@ data = pd.read_csv("Heart Disease\dataset.csv")
 print(data.head())
 print(data["target"].value_counts())
 
-#nonzero_mean = data.loc[data["cholesterol"] > 0, "cholesterol"].mean()
-#data.loc[data["cholesterol"] == 0, "cholesterol"] = nonzero_mean
+nonzero_mean = data.loc[data["cholesterol"] > 0, "cholesterol"].mean()
+data.loc[data["cholesterol"] == 0, "cholesterol"] = nonzero_mean
 
 X = data.drop("target", axis=1)
 y = data["target"]
