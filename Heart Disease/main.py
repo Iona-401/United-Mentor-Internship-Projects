@@ -2,22 +2,20 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import joblib
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-
-import joblib
-import os
 
 # Load the dataset
 data = pd.read_csv("Heart Disease\dataset.csv")
 print(data.head())
 print(data["target"].value_counts())
 
-#nonzero_mean = data.loc[data["cholesterol"] > 0, "cholesterol"].mean()
-#data.loc[data["cholesterol"] == 0, "cholesterol"] = nonzero_mean
+nonzero_mean = data.loc[data["cholesterol"] > 0, "cholesterol"].mean()
+data.loc[data["cholesterol"] == 0, "cholesterol"] = nonzero_mean
 
 X = data.drop("target", axis=1)
 y = data["target"]
@@ -35,6 +33,12 @@ model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 
+# Save the model and scaler
+output_dir = "Heart Disease"
+os.makedirs(output_dir, exist_ok=True)
+joblib.dump(model, "Heart Disease/heart_disease_model.pkl")
+joblib.dump(scaler, "Heart Disease/heart_disease_scaler.pkl")
+
 # Evaluating the rf model
 print("Random Forest Classifier Results:")
 print("Accuracy:", accuracy_score(y_test, y_pred))
@@ -48,21 +52,14 @@ features = X.columns
 sorted_indices = np.argsort(importance)[::-1]
 
 # Plotting the feature importance
-#plt.figure(figsize=(10, 6))
-#sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
-#plt.title("Feature Importance")
-#plt.xlabel("Importance")
-#plt.ylabel("Features")
-#plt.tight_layout()
-#plt.show()
+plt.figure(figsize=(10, 6))
+sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
+plt.title("Feature Importance")
+plt.xlabel("Importance")
+plt.ylabel("Features")
+plt.tight_layout()
+plt.show()
 
-# Save the model and scaler
-output_dir = "Heart Disease"
-os.makedirs(output_dir, exist_ok=True)
-model_path = "Heart Disease/heart_disease_model.pkl"
-scaler_path = "Heart Disease/heart_disease_scaler.pkl"
-joblib.dump(model, model_path)
-joblib.dump(scaler, scaler_path)
 # Save the feature importance and coefficients
 importance_df = pd.DataFrame({"Features": X.columns, "Importance": importance})
 importance_path = "Heart Disease/importance.csv"
