@@ -4,11 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
 import joblib
 
 def load_data(file_path = "Lung Cancer/dataset_med.csv"):
@@ -33,6 +30,33 @@ def clean_data(data):
     """
     df = data.drop(columns=["id", "country", "diagnosis_date", "end_treatment_date"])
     #df = df.drop(columns=["bmi", "cholesterol_level", "asthma", "hypertension", "cirrhosis", "other_cancer"])
+    return df
+
+def map_categorical_columns(df):
+    df = df.copy()
+    
+    df["gender"] = df["gender"].map({"Male": 0, "Female": 1})
+    
+    df["cancer_stage"] = df["cancer_stage"].map({
+        "Stage I": 0,
+        "Stage II": 1,
+        "Stage III": 2,
+        "Stage IV": 3
+    })
+    
+    df["smoking_status"] = df["smoking_status"].map({
+        "Never Smoked": 0,
+        "Former Smoker": 1,
+        "Current Smoker": 2
+    })
+    
+    df["treatment_type"] = df["treatment_type"].map({
+        "Surgery": 0,
+        "Chemotherapy": 1,
+        "Radiation": 2,
+        "Immunotherapy": 3
+    })
+
     return df
 
 def split_data(data, target = "survived"):
@@ -75,20 +99,6 @@ def get_preprocessor(numerical_features, categorical_features):
 
     return preprocessor
 
-def build_logistic_pipeline(preprocessor):
-    """Build a Logistic Regression pipeline.
-
-    Args:
-        preprocessor (ColumnTransformer): The preprocessing pipeline.
-
-    Returns:
-        Pipeline: The Logistic Regression pipeline.
-    """
-    return Pipeline([
-        ("preprocessor", preprocessor),
-        ("classifier", LogisticRegression(max_iter=1000, class_weight="balanced", random_state=42))
-    ])
-
 def evaluate_model(name, model, X_test, y_test):
     """Evaluate the model's performance.
 
@@ -118,50 +128,6 @@ def build_random_forest_pipeline(preprocessor):
         ("classifier", RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced", n_jobs=-1))
     ])
 
-def get_feature_names(preprocessor, X):
-    """Get the feature names after preprocessing.
-
-    Args:
-        preprocessor (ColumnTransformer): The preprocessing pipeline.
-        X (pd.DataFrame): The input features.
-
-    Returns:
-        list: The list of feature names after preprocessing.
-    """
-    output_features = []
-    for name, transformer, columns in preprocessor.transformers_:
-        if name == "remainder" and transformer == "passthrough":
-            output_features.extend(columns)
-        elif hasattr(transformer, "get_feature_names_out"):
-            try:
-                names = transformer.get_feature_names_out(columns)
-                output_features.extend(names)
-            except:
-                output_features.extend(columns)
-        else:
-            output_features.extend(columns)
-    return output_features
-
-def plot_logistic_coefficients(model, feature_names):
-    """Plot the coefficients of the Logistic Regression model.
-
-    Args:
-        model (Pipeline): The trained Logistic Regression pipeline.
-        feature_names (list): The list of feature names.
-    """
-    feature_names = get_feature_names(model.named_steps["preprocessor"], feature_names)
-    coefficients = model.named_steps["classifier"].coef_[0]
-    coef_df = pd.DataFrame({"Feature": feature_names, "Coefficient": coefficients})
-    coef_df = coef_df.sort_values(by="Coefficient", key=abs, ascending=False)
-
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x="Coefficient", y="Feature", data=coef_df)
-    plt.title("Logistic Regression Coefficients")
-    plt.xlabel("Coefficient Value")
-    plt.ylabel("Features")
-    plt.tight_layout()
-    plt.show()
-
 def main():
     """Main function to execute the data loading, cleaning, preprocessing, model training, and evaluation.
     """
@@ -170,6 +136,7 @@ def main():
 
     print("Cleaning data...")
     df = clean_data(df)
+    df = map_categorical_columns(df)
 
     print("Splitting features and target...")
     X, y = split_data(df)
@@ -203,23 +170,29 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     print(f"Training set size: {X_train.shape}, Test set size: {X_test.shape}")
 
-    print("Training Logistic Regression...")
-    log_model = build_logistic_pipeline(preprocessor)
-    log_model.fit(X_train, y_train)
-    print("Logistic Regression trained.")
-
     print("Training Random Forest...")
     rf_model =  build_random_forest_pipeline(preprocessor)
     rf_model.fit(X_train, y_train)
     print("Random Forest trained.")
 
     print("Evaluating models...")
-    evaluate_model("Logistic Regression", log_model, X_test, y_test)
     evaluate_model("Random Forest", rf_model, X_test, y_test)
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+    # Save the trained model
+    scaler = StandardScaler()
+    joblib.dump(rf_model, "Lung Cancer/lung_cancer_rf_model.pkl")
+=======
     plot_logistic_coefficients(log_model, X.columns.tolist())
     # Save the trained model
     joblib.dump(log_model, "lung_cancer_model.pkl")
+>>>>>>> parent of 4409619 (Created Input Page for Lung Caner Model)
+=======
+    plot_logistic_coefficients(log_model, X.columns.tolist())
+    # Save the trained model
+    joblib.dump(log_model, "lung_cancer_model.pkl")
+>>>>>>> parent of 4409619 (Created Input Page for Lung Caner Model)
 
 if __name__ == "__main__":
     main()

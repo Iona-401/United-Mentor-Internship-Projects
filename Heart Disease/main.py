@@ -7,7 +7,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.linear_model import LogisticRegression
 
 import joblib
 import os
@@ -16,6 +15,9 @@ import os
 data = pd.read_csv("Heart Disease\dataset.csv")
 print(data.head())
 print(data["target"].value_counts())
+
+#nonzero_mean = data.loc[data["cholesterol"] > 0, "cholesterol"].mean()
+#data.loc[data["cholesterol"] == 0, "cholesterol"] = nonzero_mean
 
 X = data.drop("target", axis=1)
 y = data["target"]
@@ -33,7 +35,7 @@ model.fit(X_train, y_train)
 
 y_pred = model.predict(X_test)
 
-# Evaluating the model
+# Evaluating the rf model
 print("Random Forest Classifier Results:")
 print("Accuracy:", accuracy_score(y_test, y_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
@@ -54,32 +56,11 @@ sorted_indices = np.argsort(importance)[::-1]
 #plt.tight_layout()
 #plt.show()
 
-# Logistic Regression Model to analyze coefficients
-log_model = LogisticRegression()
-log_model.fit(X_train, y_train)
-coefficients = log_model.coef_[0]
-coef_4f = pd.DataFrame({"Features": X.columns, "Coefficients": coefficients}).sort_values(by="Coefficients", key=abs, ascending=False)
-
-# Plotting the coefficients of the logistic regression model
-#plt.figure(figsize=(10, 6))
-#sns.barplot(x="Coefficients", y="Features", data=coef_4f)
-#plt.title("Logistic Regression Coefficients")
-#plt.xlabel("Effects on Probability of Heart Disease")
-#plt.tight_layout()
-#plt.show()
-
-# Plotting the correlation heatmap
-#plt.figure(figsize=(12, 8))
-#sns.heatmap(data.corr(), annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5)
-#plt.title("Correlation Heatmap")
-#plt.tight_layout()
-#plt.show()
-
 # Save the model and scaler
 output_dir = "Heart Disease"
 os.makedirs(output_dir, exist_ok=True)
-model_path = "Heart Disease/model.pkl"
-scaler_path = "Heart Disease/scaler.pkl"
+model_path = "Heart Disease/heart_disease_model.pkl"
+scaler_path = "Heart Disease/heart_disease_scaler.pkl"
 joblib.dump(model, model_path)
 joblib.dump(scaler, scaler_path)
 # Save the feature importance and coefficients
