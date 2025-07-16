@@ -12,3 +12,4 @@ Lung Cancer/bulk_test_results.csv
 *.pkl
 *.pkl
 *.pdf
+Heart Disease/bulk_test.py
