@@ -11,3 +11,4 @@ Lung Cancer/lung_cancer_scaler.pkl
 Lung Cancer/bulk_test_results.csv
 *.pkl
 *.pkl
+*.pdf
