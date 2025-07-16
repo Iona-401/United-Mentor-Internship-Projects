@@ -1,3 +1,13 @@
-CheatSheet.pdf
+CheatSheet1.pdf
+CheatSheet2.pdf
+CheatSheet3.pdf
 Heart Disease/__pycache__/output_page.cpython-39.pyc
-Heart Disease/__pycache__/output_page.cpython-39.pyc
+Heart Disease/heart_disease_model.pkl
+Heart Disease/heart_disease_scaler.pkl
+Heart Disease/bulk_test_results.csv
+Lung Cancer/__pycache__/output_page.cpython-39.pyc
+Lung Cancer/lung_cancer_model.pkl
+Lung Cancer/lung_cancer_scaler.pkl
+Lung Cancer/bulk_test_results.csv
+*.pkl
+*.pkl
