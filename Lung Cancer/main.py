@@ -11,29 +11,34 @@ import joblib
 file_path = "Lung Cancer/dataset_med.csv"
 
 df = pd.read_csv(file_path)
-df = df.drop(columns=["id", "country", "diagnosis_date", "end_treatment_date"])
+print(f"Dataset shape: {df.shape}")
+print("Dataset Loaded Successfully")
 
-df["gender"] = df["gender"].map({"Male": 0, "Female": 1})
-    
+df = df.drop(columns=["id", "country", "diagnosis_date", "end_treatment_date"])
+print("Unnecessary columns dropped.")
+
+df["gender"] = df["gender"].map({
+    "Male": 0, 
+    "Female": 1
+})  
 df["cancer_stage"] = df["cancer_stage"].map({
     "Stage I": 0,
     "Stage II": 1,
     "Stage III": 2,
     "Stage IV": 3
-})
-    
+})  
 df["smoking_status"] = df["smoking_status"].map({
     "Never Smoked": 0,
     "Former Smoker": 1,
     "Current Smoker": 2
-})
-    
+})    
 df["treatment_type"] = df["treatment_type"].map({
     "Surgery": 0,
     "Chemotherapy": 1,
     "Radiation": 2,
     "Immunotherapy": 3
 })
+print("Categorical columns mapped to numerical values.")
 
 X = df.drop(columns=["survived"])
 y = df["survived"]
@@ -55,8 +60,7 @@ numerical_features = ["age",
     "other_cancer"
 ]
 categorical_features = [
-    "gender", 
-    #"country",
+    "gender",
     "cancer_stage", 
     "family_history",
     "smoking_status", 
@@ -69,12 +73,14 @@ preprocessor = ColumnTransformer([
 ], remainder="passthrough")
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print("Data split into training and testing sets.")
 
 rf_model =  Pipeline([
     ("preprocessor", preprocessor),
     ("classifier", RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced", n_jobs=-1))
 ])
 rf_model.fit(X_train, y_train)
+print("Random Forest model trained successfully.")
 
 y_pred = rf_model.predict(X_test)
 print(f"\n=== Random Forest Model ===")
@@ -84,3 +90,4 @@ print("Classification Report:\n", classification_report(y_test, y_pred))
 
 # Save the trained model
 joblib.dump(rf_model, "Lung Cancer/lung_cancer_rf_model.pkl")
+print("Model Saved Successfully.")
