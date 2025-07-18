@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import joblib
+from sklearn.model_selection import GridSearchCV
 
 file_path = "Lung Cancer/dataset_med.csv"
 
@@ -38,6 +39,11 @@ df["treatment_type"] = df["treatment_type"].map({
     "Radiation": 2,
     "Immunotherapy": 3
 })
+df["family_history"] = df["family_history"].map({
+    "Yes": 1,
+    "No": 0
+})
+    
 print("Categorical columns mapped to numerical values.")
 
 X = df.drop(columns=["survived"])
@@ -52,17 +58,17 @@ categorical_transformer = Pipeline([
 ])
 
 numerical_features = ["age",
-    "bmi", 
-    "cholesterol_level", 
-    "hypertension", 
-    "asthma", 
-    "cirrhosis", 
+    "gender",
+    "family_history",
+    "bmi",
+    "cholesterol_level",
+    "hypertension",
+    "asthma",
+    "cirrhosis",
     "other_cancer"
 ]
 categorical_features = [
-    "gender",
     "cancer_stage", 
-    "family_history",
     "smoking_status", 
     "treatment_type"
 ]
@@ -75,7 +81,7 @@ preprocessor = ColumnTransformer([
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 print("Data split into training and testing sets.")
 
-rf_model =  Pipeline([
+rf_model = Pipeline([
     ("preprocessor", preprocessor),
     ("classifier", RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced", n_jobs=-1))
 ])
@@ -90,4 +96,4 @@ print("Classification Report:\n", classification_report(y_test, y_pred))
 
 # Save the trained model
 joblib.dump(rf_model, "Lung Cancer/lung_cancer_rf_model.pkl")
-print("Model Saved Successfully.")
+print("Model and preprocessor saved successfully.")
