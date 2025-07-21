@@ -79,7 +79,7 @@ print("Data Split into Training and Testing Sets")
 model.fit(X_train, y_train)
 print("Model Training Completed")
 
-# Parameter tuning (optional)
+# Parameter tuning
 #param_grid = {'classifier__max_depth': [3, 4, 5, 6], 'classifier__learning_rate': [0.01, 0.05, 0.1], 'classifier__n_estimators': [100, 200, 300], 'classifier__subsample': [0.8, 1.0], 'classifier__colsample_bytree': [0.8, 1.0]}
 #grid_search = GridSearchCV(model, param_grid, cv = 3, scoring = "accuracy", verbose=1, n_jobs=-1)
 #grid_search.fit(X_train, y_train)

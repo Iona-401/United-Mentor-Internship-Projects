@@ -1,0 +1,2 @@
+"N_Days", "Age", "Bilirubin", "Cholesterol", "Albumin", "Copper", "Alk_Phos", "SGOT", "Tryglicerides", "Platelets", "Prothrombin"]
+categorical_features = ["Status", "Drug", "Sex", "Ascites", "Hepatomegaly", "Spiders", "Edema"]
