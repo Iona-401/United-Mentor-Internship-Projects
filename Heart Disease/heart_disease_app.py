@@ -24,41 +24,6 @@ class HeartDiseaseApp(QWidget):
         self.fields = {}
         self.init_ui()
     
-    def apply_dark_theme(app):
-        dark_style = """
-            QWidget {
-                background-color: #2b2b2b;
-                color: #ffffff;
-                font-family: Gothic;
-                font-size: 12pt;
-            }
-
-            QLineEdit, QComboBox {
-                background-color: #3c3f41;
-                border: 1px solid #555;
-                color: #fff;
-                padding: 5px;
-                border-radius: 4px;
-            }
-
-            QPushButton {
-                background-color: #4e8ef7;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 5px;
-            }
-
-            QPushButton:hover {
-                background-color: #6faaff;
-            }
-
-            QLabel#result_label {
-                font-size: 14pt;
-                font-weight: bold;
-            }
-        """
-        app.setStyleSheet(dark_style)
-    
     def init_ui(self):
         # Form Layout
         main_layout = QVBoxLayout()
@@ -293,6 +258,41 @@ class HeartDiseaseApp(QWidget):
                 self.fields[key].clear()
             elif isinstance(self.fields[key], QComboBox):
                 self.fields[key].setCurrentIndex(0)
+    
+    def apply_dark_theme(app):
+        dark_style = """
+            QWidget {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                font-family: Gothic;
+                font-size: 12pt;
+            }
+
+            QLineEdit, QComboBox {
+                background-color: #3c3f41;
+                border: 1px solid #555;
+                color: #fff;
+                padding: 5px;
+                border-radius: 4px;
+            }
+
+            QPushButton {
+                background-color: #4e8ef7;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 5px;
+            }
+
+            QPushButton:hover {
+                background-color: #6faaff;
+            }
+
+            QLabel#result_label {
+                font-size: 14pt;
+                font-weight: bold;
+            }
+        """
+        app.setStyleSheet(dark_style)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
