@@ -132,3 +132,136 @@ if __name__ == '__main__':
     form = LungCancerInputForm()
     form.show()
     sys.exit(app.exec_())
+    
+    
+    
+
+
+def make_prediction(self):
+        try:
+
+            feature_names = ["age", "sex", "chest pain type", "resting bp s", "cholesterol", "fasting blood sugar", "resting ecg", "max heart rate", "exercise angina", "oldpeak", "ST slope"]
+
+            input_data = []
+            
+            for key in feature_names:
+                widget = self.fields[key]
+                if isinstance(widget, QLineEdit):
+                    value = widget.text()
+                    if not value:
+                        raise ValueError(f"{key.capitalize()} cannot be empty.")
+                    input_data.append(float(value))
+                elif isinstance(widget, QComboBox):
+                    value = widget.currentData()
+                    if value is None:
+                        raise ValueError(f"Please select a valid option for {key}.")
+                    input_data.append(value)
+            
+            feature_names = ["age", "sex", "chest pain type", "resting bp s", "cholesterol", "fasting blood sugar", "resting ecg", "max heart rate", "exercise angina", "oldpeak", "ST slope"]
+            input_df = pd.DataFrame([input_data], columns=feature_names)
+            scaled_input = self.scaler.transform(input_df)
+            prediction = self.model.predict(scaled_input)[0]
+            probability = self.model.predict_proba(scaled_input)[0][1]
+            
+            if prediction == 1:
+                self.result_label.setText(f"❗ Heart Disease Detected\nProbability: {probability:.2f}")
+                self.result_label.setStyleSheet("color: red; font-weight: bold;")
+            else:
+                self.result_label.setText(f"✅ No Heart Disease Detected\nProbability: {probability:.2f}")
+                self.result_label.setStyleSheet("color: green; font-weight: bold;")
+            
+            self.plot_patient_graphs(input_df)
+        
+        except ValueError as ve:
+            QMessageBox.critical(self, "Input Error", str(ve))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Prediction Failed: {e}")
+
+    def plot_patient_graphs(self, input_df):
+        if self.canvas:
+            self.canvas.setParent(None)
+
+        # Set up dark theme for matplotlib
+        plt.close('all')
+        fig, axs = plt.subplots(2, 2, figsize=(10, 6), facecolor='#2b2b2b')
+        fig.tight_layout(pad=4.0)
+        fig.suptitle("Patient Data Visualization", fontsize=16, color="#FFF", weight="bold")
+
+        features = ["age", "cholesterol", "resting bp s", "max heart rate"]
+        plot_names = {
+            "age": "Age",
+            "resting bp s": "Resting Blood Pressure",
+            "cholesterol": "Cholesterol",
+            "max heart rate": "Max Heart Rate",
+        }
+        xlimits = {
+            "age": (25, 80),
+            "resting bp s": (80, 200),
+            "cholesterol": (100, 400),
+            "max heart rate": (60, 210),
+        }
+
+        # Set seaborn style for dark mode
+        sns.set_theme(style="darkgrid", rc={
+            "axes.facecolor": "#2b2b2b",
+            "axes.edgecolor": "#888",
+            "axes.labelcolor": "#fff",
+            "xtick.color": "#fff",
+            "ytick.color": "#fff",
+            "grid.color": "#444",
+            "text.color": "#fff",
+            "figure.facecolor": "#2b2b2b",
+            "legend.facecolor": "#444",
+            "legend.edgecolor": "#888",
+        })
+
+        for ax, feature in zip(axs.flat, features):
+            sns.histplot(self.dataset[feature], kde=True, ax=ax, color="#66b3ff", alpha=0.7)
+            ax.axvline(input_df[feature].iloc[0], color="red", linestyle="--", label="Patient", linewidth=2)
+            ax.set_xlim(*xlimits[feature])
+            ax.set_title(plot_names[feature], color="#FFF", fontsize=12, weight="bold")
+            ax.legend(facecolor="#444", edgecolor="#888", labelcolor="#FFF")
+            ax.set_xlabel(feature, color="#FFF")
+            ax.set_ylabel("Count", color="#FFF")
+            # Set ticks color
+            ax.tick_params(colors="#FFF")
+            # Set spine color
+            for spine in ax.spines.values():
+                spine.set_color("#888")
+            # Set grid color
+            ax.grid(color="#444")
+
+        self.canvas = FigureCanvas(fig)
+        self.canvas_layout.addWidget(self.canvas)
+
+    def get_x_limits(self, feature):
+        limits = {
+            "age": (25, 80),
+            "resting bp s": (80, 200),
+            "cholesterol": (100, 400),
+            "max heart rate": (60, 210),
+        }
+        return limits.get(feature, (None, None))
+    
+    def get_plot_names(self, feature):
+        names = {
+            "age": "Age",
+            "resting bp s": "Resting Blood Pressure",
+            "cholesterol": "Cholesterol",
+            "max heart rate": "Max Heart Rate",
+        }
+        return names.get(feature, feature.capitalize())
+        
+    def on_clear(self):
+        for key in self.fields:
+            if isinstance(self.fields[key], QLineEdit):
+                self.fields[key].clear()
+            elif isinstance(self.fields[key], QComboBox):
+                self.fields[key].setCurrentIndex(0)
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    HeartDiseaseApp.apply_dark_theme(app)
+    window = HeartDiseaseApp()
+    window.show()
+    sys.exit(app.exec_())
