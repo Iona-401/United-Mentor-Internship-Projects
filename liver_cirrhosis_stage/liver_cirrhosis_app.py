@@ -1,16 +1,13 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFormLayout,
-    QLineEdit, QComboBox, QPushButton, QMessageBox
+    QLineEdit, QComboBox, QPushButton, QMessageBox, QFrame
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
 import joblib
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import seaborn as sns
 
 FILE_PATH = "liver_cirrhosis_stage/liver_cirrhosis.csv"
 MODEL_PATH = "liver_cirrhosis_stage/xgboost_liver_cirrhosis_model.pkl"
@@ -27,10 +24,12 @@ class LiverCirrhosisApp(QWidget):
         self.init_ui()
 
     def init_ui(self):
+        
         top_layout = QVBoxLayout()
-        secondary_layout = QHBoxLayout()
+        second_layout = QHBoxLayout()
         form_layout = QVBoxLayout()
-        plot_layout = QVBoxLayout()
+        form_section = QFormLayout()
+        result_layout = QVBoxLayout()
         
         title = QLabel("Liver Cirrhosis Stage Prediction")
         title.setAlignment(Qt.AlignCenter)
@@ -76,14 +75,12 @@ class LiverCirrhosisApp(QWidget):
             "No": 0
         })
         self.add_combo_field("Edema", "Edema", {
-            "Yes": 2,
-            "Edema": 1,
-            "No": 0
+            "Edema Present": 2,
+            "Edema not present with Diuretics": 1,
+            "No Edema": 0
         })
 
-        form_section = QFormLayout()
-        form_section.setVerticalSpacing(20)
-
+        # Form Layout
         form_section.addRow(QLabel("Number of Days:"), self.fields["N_Days"])
         form_section.addRow(QLabel("Age:"), self.fields["Age"])
         form_section.addRow(QLabel("Status:"), self.fields["Status"])
@@ -96,29 +93,64 @@ class LiverCirrhosisApp(QWidget):
         form_section.addRow(QLabel("Total Bilirubin:"), self.fields["Bilirubin"])
         form_section.addRow(QLabel("Cholesterol:"), self.fields["Cholesterol"])
         form_section.addRow(QLabel("Albumin:"), self.fields["Albumin"])
+        form_section.addRow(QLabel("Copper:"), self.fields["Copper"])
         form_section.addRow(QLabel("Alkaline Phosphatase:"), self.fields["Alk_phos"])
         form_section.addRow(QLabel("SGOT:"), self.fields["SGOT"])
         form_section.addRow(QLabel("Triglycerides Level:"), self.fields["Triglicerides"])
         form_section.addRow(QLabel("Platelet Count:"), self.fields["Platelets"])
         form_section.addRow(QLabel("Prothrombin Time:"), self.fields["Prothrombin"])
-
-        form_layout.addLayout(form_section)
         
-        self.submit_button = QPushButton("Predict")
+        h_line = QFrame()
+        h_line.setFrameShape(QFrame.HLine)
+        h_line.setFrameShadow(QFrame.Sunken)
+
+        # Submit Button
+        self.submit_button = QPushButton("Predict Stage")
         self.submit_button.setFont(QFont("Gothic", 14))
         self.submit_button.clicked.connect(self.make_prediction)
         self.submit_button.setToolTip("Submit the form for prediction")
-        form_layout.addWidget(self.submit_button)
-        
+
         # Clear Form Button
         self.clear_button = QPushButton("Clear")
         self.clear_button.setFont(QFont("Gothic", 14))
         self.clear_button.clicked.connect(self.on_clear)
         self.clear_button.setToolTip("Clear the form fields")
+        
+        form_widget = QWidget()
+        form_widget.setFixedWidth(400)
+        
+        form_layout.addLayout(form_section)
+        form_layout.addWidget(form_widget)
+        form_layout.addStretch(20)
+        form_layout.addWidget(h_line)
+        form_layout.addWidget(self.submit_button)
         form_layout.addWidget(self.clear_button)
+        
+        # Result Label
+        result_widget = QWidget()
+        result_widget.setFixedWidth(400)
+        result_layout.addWidget(result_widget)
 
-        secondary_layout.addLayout(form_layout)
-        top_layout.addLayout(secondary_layout)
+        self.result_title = QLabel("Prediction Result:")
+        self.result_label = QLabel("")
+        self.result_label.setObjectName("result_label")
+        self.result_label.setAlignment(Qt.AlignCenter)
+        self.result_title.setAlignment(Qt.AlignCenter)
+        
+        result_layout.addStretch(1)
+        result_layout.addWidget(self.result_title)
+        result_layout.addWidget(self.result_label)
+        result_layout.addStretch(1)
+        
+        v_line = QFrame()
+        v_line.setFrameShape(QFrame.VLine)
+        v_line.setFrameShadow(QFrame.Sunken)
+        v_line.setFixedHeight(400)
+        
+        second_layout.addLayout(form_layout)
+        second_layout.addWidget(v_line)
+        second_layout.addLayout(result_layout)
+        top_layout.addLayout(second_layout)
         self.setLayout(top_layout)
 
     def add_input_field(self, key, label):
@@ -126,10 +158,12 @@ class LiverCirrhosisApp(QWidget):
         field.setPlaceholderText(label)
         self.fields[key] = field
 
-    def add_combo_field(self, key, label, options):
-        field = QComboBox()
-        field.addItems(options)
-        self.fields[key] = field
+    def add_combo_field(self, key, label, options: dict):
+        combo = QComboBox()
+        combo.addItem("-- Select --", None)
+        for name, value in options.items():
+            combo.addItem(name, value)
+        self.fields[key] = combo
         
     def make_prediction(self):
         try:
@@ -156,16 +190,66 @@ class LiverCirrhosisApp(QWidget):
             prediction = self.model.predict(input_df)[0]
             probability = self.model.predict_proba(input_df)[0][1]
 
-            if prediction == 1:
-                self.result_label.setText(f"❗ Heart Disease Detected\nProbability: {probability:.2f}")
+            if prediction == 2:
+                self.result_label.setText(f"Liver Cirrhosis Stage 3\nProbability: {probability:.2f}")
                 self.result_label.setStyleSheet("color: red; font-weight: bold;")
-            else:
-                self.result_label.setText(f"✅ No Heart Disease Detected\nProbability: {probability:.2f}")
-                self.result_label.setStyleSheet("color: green; font-weight: bold;")
-            
-            self.plot_patient_graphs(input_df)
+            elif prediction == 1:
+                self.result_label.setText(f"Liver Cirrhosis Stage 2\nProbability: {probability:.2f}")
+                self.result_label.setStyleSheet("color: orange; font-weight: bold;")
+            elif prediction == 0:
+                self.result_label.setText(f"Liver Cirrhosis Stage 1\nProbability: {probability:.2f}")
+                self.result_label.setStyleSheet("color: yellow; font-weight: bold;")
         
         except ValueError as ve:
             QMessageBox.critical(self, "Input Error", str(ve))
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Prediction Failed: {e}")
+        
+    def on_clear(self):
+        for key in self.fields:
+            if isinstance(self.fields[key], QLineEdit):
+                self.fields[key].clear()
+            elif isinstance(self.fields[key], QComboBox):
+                self.fields[key].setCurrentIndex(0)
+    
+    def apply_dark_theme(app):
+        dark_style = """
+            QWidget {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                font-family: Gothic;
+                font-size: 12pt;
+            }
+
+            QLineEdit, QComboBox {
+                background-color: #3c3f41;
+                border: 1px solid #555;
+                color: #fff;
+                padding: 5px;
+                border-radius: 4px;
+            }
+
+            QPushButton {
+                background-color: #4e8ef7;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 5px;
+            }
+
+            QPushButton:hover {
+                background-color: #6faaff;
+            }
+
+            QLabel#result_label {
+                font-size: 14pt;
+                font-weight: bold;
+            }
+        """
+        app.setStyleSheet(dark_style)
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    LiverCirrhosisApp.apply_dark_theme(app)
+    window = LiverCirrhosisApp()
+    window.show()
+    sys.exit(app.exec_())

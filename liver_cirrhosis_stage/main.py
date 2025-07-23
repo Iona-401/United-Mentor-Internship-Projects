@@ -31,7 +31,7 @@ data["Sex"] = data["Sex"].map({"M": 1, "F": 0})
 data["Ascites"] = data["Ascites"].map({"Y": 1, "N": 0})
 data["Hepatomegaly"] = data["Hepatomegaly"].map({"Y": 1, "N": 0})
 data["Spiders"] = data["Spiders"].map({"Y": 1, "N": 0})
-data["Edema"] = data["Edema"].map({"Y": 1, "N": 0})
+data["Edema"] = data["Edema"].map({"Y": 2, "S": 1, "N": 0})
 data["Stage"] = data["Stage"].map({1: 0, 2: 1, 3: 2})
 
 X = data.drop("Stage", axis=1)
