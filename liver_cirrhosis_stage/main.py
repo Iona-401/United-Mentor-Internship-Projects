@@ -7,9 +7,10 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+# import matplotlib.pyplot as plt
+
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
-
 
 FILE_PATH = "liver_cirrhosis_stage/liver_cirrhosis.csv"
 
@@ -18,8 +19,8 @@ FILE_PATH = "liver_cirrhosis_stage/liver_cirrhosis.csv"
 data = pd.read_csv(FILE_PATH)
 print("Data Loaded Successfully")
 
-missing_stage = data["Stage"].isnull().sum()
-print(f"Number of missing values in 'Stage' column: {missing_stage}")
+missing_values = data.isnull().sum()
+print(f"Number of missing values in each column: {missing_values}")
 
 data.dropna(inplace=True)
 print("Dropped Missing Values")
@@ -96,6 +97,21 @@ print("Confusion Matrix:")
 print(confusion_matrix(y_test, y_pred))
 print("Classification Report:")
 print(classification_report(y_test, y_pred))
+
+# Feature Importance Plot
+#preprocessor = model.named_steps['preprocessor']
+#cat_features = preprocessor.named_transformers_['cat'].named_steps['onehot'].get_feature_names_out(categorical_features)
+#all_features = numerical_features + list(cat_features)
+
+#xgb = model.named_steps['classifier']
+#importances = xgb.feature_importances_
+
+# Plot
+#plt.figure(figsize=(10,6))
+#plt.barh(all_features, importances)
+#plt.xlabel("Feature Importance")
+#plt.title("XGBoost Feature Importances")
+#plt.show()
 
 # Saving the model
 joblib.dump(model, "liver_cirrhosis_stage/xgboost_liver_cirrhosis_model.pkl")

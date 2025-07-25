@@ -43,9 +43,9 @@ class LiverCirrhosisApp(QWidget):
         self.add_input_field("Cholesterol", "Cholesterol")
         self.add_input_field("Albumin", "Albumin")
         self.add_input_field("Copper", "Copper")
-        self.add_input_field("Alk_phos", "Alkaline Phosphatase")
+        self.add_input_field("Alk_Phos", "Alkaline Phosphatase")
         self.add_input_field("SGOT", "SGOT")
-        self.add_input_field("Triglicerides", "Triglycerides Level")
+        self.add_input_field("Tryglicerides", "Triglycerides Level")
         self.add_input_field("Platelets", "Platelet Count")
         self.add_input_field("Prothrombin", "Prothrombin Time")
 
@@ -94,9 +94,9 @@ class LiverCirrhosisApp(QWidget):
         form_section.addRow(QLabel("Cholesterol:"), self.fields["Cholesterol"])
         form_section.addRow(QLabel("Albumin:"), self.fields["Albumin"])
         form_section.addRow(QLabel("Copper:"), self.fields["Copper"])
-        form_section.addRow(QLabel("Alkaline Phosphatase:"), self.fields["Alk_phos"])
+        form_section.addRow(QLabel("Alkaline Phosphatase:"), self.fields["Alk_Phos"])
         form_section.addRow(QLabel("SGOT:"), self.fields["SGOT"])
-        form_section.addRow(QLabel("Triglycerides Level:"), self.fields["Triglicerides"])
+        form_section.addRow(QLabel("Triglycerides Level:"), self.fields["Tryglicerides"])
         form_section.addRow(QLabel("Platelet Count:"), self.fields["Platelets"])
         form_section.addRow(QLabel("Prothrombin Time:"), self.fields["Prothrombin"])
         
