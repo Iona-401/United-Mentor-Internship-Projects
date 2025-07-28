@@ -196,4 +196,4 @@ print(classification_report(y_test, y_pred))
 #plt.show()
 
 # Saving the model
-#joblib.dump(model, "thyroid_cancer/xgboost_thyroid_cancer_model.pkl")
+joblib.dump(model, "thyroid_cancer/xgboost_thyroid_cancer_model.pkl")
