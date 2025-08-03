@@ -6,3 +6,7 @@ C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/thyroid_cancer
 C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/thyroid_cancer/dist/Thyroid_Cancer_Predictor.exe filter=lfs diff=lfs merge=lfs -text
 random_forest_thyroid_cancer_model.pkl filter=lfs diff=lfs merge=lfs -text
 C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/thyroid_cancer/random_forest_thyroid_cancer_model.pkl filter=lfs diff=lfs merge=lfs -text
+.pkl filter=lfs diff=lfs merge=lfs -text
+C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/liver_cirrhosis_stage/xgboost_liver_cirrhosis_model.pkl filter=lfs diff=lfs merge=lfs -text
+C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/Heart[[:space:]]Disease/heart_disease_model.pkl filter=lfs diff=lfs merge=lfs -text
+C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/Heart[[:space:]]Disease/heart_disease_scaler.pkl filter=lfs diff=lfs merge=lfs -text
