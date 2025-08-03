@@ -9,8 +9,6 @@ Lung Cancer/__pycache__/output_page.cpython-39.pyc
 Lung Cancer/lung_cancer_model.pkl
 Lung Cancer/lung_cancer_scaler.pkl
 Lung Cancer/bulk_test_results.csv
-*.pkl
-*.pkl
 *.pdf
 Heart Disease/bulk_test.py
 *.png
