@@ -13,3 +13,4 @@ C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/Heart[[:space:
 *.pkl filter=lfs diff=lfs merge=lfs -text
 *.exe filter=lfs diff=lfs merge=lfs -text
 *.csv filter=lfs diff=lfs merge=lfs -text
+*.pkg filter=lfs diff=lfs merge=lfs -text
