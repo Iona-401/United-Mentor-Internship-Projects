@@ -2,17 +2,17 @@ import numpy as np
 import pandas as pd
 import joblib
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="xgboost")
+warnings.filterwarnings("ignore")
 
-FILE_PATH = "thyroid_cancer/dataset.csv"
+FILE_PATH = "thyroid_cancer\dataset.csv"
 
 feature_names = ["Age", "Gender", "Smoking", "Hx Smoking", "Hx Radiothreapy", "Thyroid Function", "Physical Examination", "Adenopathy", "Pathology", "Focality", "Risk", "T", "N", "M", "Stage", "Response", "Recurred"]
 
@@ -142,15 +142,13 @@ preprocessor = ColumnTransformer(
 # Create the model pipeline
 model = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('classifier', XGBClassifier(
-        eval_metric='mlogloss', 
-        tree_method = "hist",
-        device = "cuda",
-        classifier__colsample_bytree = 0.8, 
-        classifier__learning_rate = 0.05, 
-        classifier__max_depth = 4, 
-        classifier__n_estimators = 100, 
-        classifier__subsample = 1.0
+    ('classifier', RandomForestClassifier(
+        max_depth = 5,
+        max_features = "sqrt",
+        min_samples_leaf = 1,
+        min_samples_split = 5,
+        n_estimators=200,
+        random_state=42
     ))
 ])
 
@@ -162,17 +160,26 @@ print("Data Split into Training and Testing Sets")
 model.fit(X_train, y_train)
 print("Model Training Completed")
 
-# Parameter tuning
-#param_grid = {'classifier__max_depth': [3, 4, 5, 6], 'classifier__learning_rate': [0.01, 0.05, 0.1], 'classifier__n_estimators': [100, 200, 300], 'classifier__subsample': [0.8, 1.0], 'classifier__colsample_bytree': [0.8, 1.0]}
-#grid_search = GridSearchCV(model, param_grid, cv = 3, scoring = "accuracy", verbose=1, n_jobs=-1)
+# Parameter tuning for Random Forest
+#param_grid = {
+#    'classifier__n_estimators': [100, 200, 300],
+#    'classifier__max_depth': [3, 4, 5, 6, None],
+#    'classifier__min_samples_split': [2, 5, 10],
+#    'classifier__min_samples_leaf': [1, 2, 4],
+#    'classifier__max_features': ['sqrt', 'log2']
+#}
+
+#print("Starting Grid Search for Random Forest...")
+#grid_search = GridSearchCV(model, param_grid, cv=3, scoring="accuracy", verbose=1, n_jobs=-1)
 #grid_search.fit(X_train, y_train)
 #print("Best Params:", grid_search.best_params_)
+#print("Best Cross-validation Score:", grid_search.best_score_)
 
 # Make predictions
 y_pred = model.predict(X_test)
 
 # Evaluate the model
-print("=== XGBoost Model Evaluation ===")
+print("=== Random Forest Model Evaluation ===")
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Accuracy: {accuracy:.2f}")
 print("Confusion Matrix:")
@@ -196,4 +203,4 @@ print(classification_report(y_test, y_pred))
 #plt.show()
 
 # Saving the model
-joblib.dump(model, "thyroid_cancer/xgboost_thyroid_cancer_model.pkl")
+joblib.dump(model, "random_forest_thyroid_cancer_model.pkl")

@@ -1,16 +1,24 @@
 import sys
+import os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QComboBox, QPushButton, QMessageBox, QFrame
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
-
 import joblib
 import pandas as pd
 
-FILE_PATH = "thyroid_cancer/dataset.csv"
-MODEL_PATH = "thyroid_cancer/xgboost_thyroid_cancer_model.pkl"
+# Fix the model path for both development and executable
+def get_resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+MODEL_PATH = get_resource_path("random_forest_thyroid_cancer_model.pkl")
 feature_names = ["Age", "Gender", "Smoking", "Hx Smoking", "Hx Radiothreapy", "Thyroid Function", "Physical Examination", "Adenopathy", "Pathology", "Focality", "Risk", "T", "N", "M", "Stage", "Response"]
 
 class ThyroidCancerApp(QWidget):
@@ -20,7 +28,6 @@ class ThyroidCancerApp(QWidget):
         self.setGeometry(100, 100, 800, 600)
         self.setFont(QFont("Gothic", 12))
         self.model = joblib.load(MODEL_PATH)
-        self.dataset = pd.read_csv(FILE_PATH)
         self.fields = {}
         self.init_ui()
 
@@ -251,6 +258,7 @@ class ThyroidCancerApp(QWidget):
             elif isinstance(self.fields[key], QComboBox):
                 self.fields[key].setCurrentIndex(0)
     
+    @staticmethod
     def apply_dark_theme(app):
         dark_style = """
             QWidget {
