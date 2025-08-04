@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QComboBox, QPushButton, QMessageBox
@@ -18,9 +19,24 @@ class HeartDiseaseApp(QWidget):
         self.setWindowTitle("Heart Disease Prediction App")
         self.setGeometry(100, 100, 800, 600)
         self.setFont(QFont("Gothic", 12))
-        self.model = joblib.load("Heart Disease/heart_disease_model.pkl")
-        self.scaler = joblib.load("Heart Disease/heart_disease_scaler.pkl")
-        self.dataset = pd.read_csv("Heart Disease/dataset.csv")
+        
+        # Get the directory of the executable or script
+        if getattr(sys, 'frozen', False):
+            # Running as compiled executable - use sys._MEIPASS for bundled files
+            base_dir = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+        else:
+            # Running as script
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Load model and data files
+        try:
+            self.model = joblib.load(os.path.join(base_dir, "heart_disease_model.pkl"))
+            self.scaler = joblib.load(os.path.join(base_dir, "heart_disease_scaler.pkl"))
+            self.dataset = pd.read_csv(os.path.join(base_dir, "dataset.csv"))
+        except FileNotFoundError as e:
+            QMessageBox.critical(None, "File Error", f"Required file not found: {e}\nBase directory: {base_dir}")
+            sys.exit(1)
+        
         self.fields = {}
         self.init_ui()
     

@@ -52,13 +52,13 @@ features = X.columns
 sorted_indices = np.argsort(importance)[::-1]
 
 # Plotting the feature importance
-plt.figure(figsize=(10, 6))
-sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
-plt.title("Feature Importance")
-plt.xlabel("Importance")
-plt.ylabel("Features")
-plt.tight_layout()
-plt.show()
+#plt.figure(figsize=(10, 6))
+#sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
+#plt.title("Feature Importance")
+#plt.xlabel("Importance")
+#plt.ylabel("Features")
+#plt.tight_layout()
+#plt.show()
 
 # Save the feature importance and coefficients
 importance_df = pd.DataFrame({"Features": X.columns, "Importance": importance})

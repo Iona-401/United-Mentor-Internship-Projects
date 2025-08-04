@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QComboBox, QPushButton, QMessageBox, QFrame
@@ -9,17 +10,29 @@ from PyQt5.QtCore import Qt
 import joblib
 import pandas as pd
 
-FILE_PATH = "liver_cirrhosis_stage/liver_cirrhosis.csv"
-MODEL_PATH = "liver_cirrhosis_stage/xgboost_liver_cirrhosis_model.pkl"
-
 class LiverCirrhosisApp(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Liver Cirrhosis Stage Prediction App")
         self.setGeometry(100, 100, 800, 600)
         self.setFont(QFont("Gothic", 12))
-        self.model = joblib.load(MODEL_PATH)
-        self.dataset = pd.read_csv(FILE_PATH)
+        
+        # Get the directory of the executable or script
+        if getattr(sys, 'frozen', False):
+            # Running as compiled executable - use sys._MEIPASS for bundled files
+            base_dir = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+        else:
+            # Running as script
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Load model and data files
+        try:
+            self.model = joblib.load(os.path.join(base_dir, "random_forest_liver_cirrhosis_model.pkl"))
+            self.dataset = pd.read_csv(os.path.join(base_dir, "liver_cirrhosis.csv"))
+        except FileNotFoundError as e:
+            QMessageBox.critical(None, "File Error", f"Required file not found: {e}\nBase directory: {base_dir}")
+            sys.exit(1)
+            
         self.fields = {}
         self.init_ui()
 
