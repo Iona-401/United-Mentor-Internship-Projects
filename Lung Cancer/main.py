@@ -1,145 +1,158 @@
-
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import numpy as np
 import joblib
-from xgboost import XGBClassifier
-from imblearn.over_sampling import SMOTE
-from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, ExtraTreesClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import VotingClassifier
+from imblearn.over_sampling import SMOTE
+from sklearn.utils.class_weight import compute_class_weight
 
-file_path = "Lung Cancer/dataset_med.csv"
+import warnings
+warnings.filterwarnings("ignore")
 
-df = pd.read_csv(file_path)
-print(f"Dataset shape: {df.shape}")
-print("Dataset Loaded Successfully")
 
-df = df.drop(columns=["id", "country", "diagnosis_date", "end_treatment_date"])
-print("Unnecessary columns dropped.")
+FILE_PATH = "Lung Cancer\dataset_med.csv"
 
-df["gender"] = df["gender"].map({
-    "Male": 0, 
-    "Female": 1
-})  
-df["cancer_stage"] = df["cancer_stage"].map({
+df = pd.read_csv(FILE_PATH)
+print(f"Original Dataset Shape: {df.shape}")
+print("Data Loaded Successfully")
+
+print(f"\nDataset Info:")
+print(f"Columns: {list(df.columns)}")
+print(f"Data types:\n{df.dtypes}")
+
+# Drop unnecessary columns
+print(f"\nDropping unnecessary columns...")
+columns_to_drop = ["id", "country", "diagnosis_date", "end_treatment_date"]
+df_clean = df.drop(columns=columns_to_drop)
+print(f"Shape after dropping columns: {df_clean.shape}")
+
+# Check for missing values
+print(f"\nMissing Values Check:")
+missing_values = df.isnull().sum()
+print(missing_values)
+total_missing = missing_values.sum()
+print(f"Total missing values: {total_missing}")
+
+# Remove rows with any missing values
+print(f"\nHandling missing values...")
+print(f"Rows before removing missing values: {len(df_clean)}")
+df_clean.dropna(inplace=True)
+print(f"Rows after removing missing values: {len(df_clean)}")
+print(f"Final dataset shape: {df_clean.shape}")
+
+# Check the target variable distribution
+print(f"\nTarget Variable Analysis (Survival):")
+target_dist = df_clean['survived'].value_counts()
+target_pct = df_clean['survived'].value_counts(normalize=True) * 100
+print(f"Not Survived (0): {target_dist[0]} samples ({target_pct[0]:.1f}%)")
+print(f"Survived (1): {target_dist[1]} samples ({target_pct[1]:.1f}%)")
+print(f"Class imbalance ratio: {target_pct[0]/target_pct[1]:.2f}:1")
+
+categorical_features = df_clean.select_dtypes(include=['object']).columns
+numerical_features = df_clean.select_dtypes(include=['int64', 'float64']).columns
+
+#print("Categorical column values:")
+#for col in categorical_columns:
+#    print(f"\n{col}:")
+#    value_counts = df_clean[col].value_counts()
+#    for value, count in value_counts.items():
+#        print(f"  - {value}: {count} ({count/len(df_clean)*100:.1f}%)")
+
+#Class Mapping for Easier UI Allocation
+df_clean["gender"] = df_clean["gender"].map({
+    "Male": 1,
+    "Female": 0
+})
+
+df_clean["family_history"] = df_clean["family_history"].map({
+    "No": 0,
+    "Yes": 1
+})
+
+df_clean["cancer_stage"] = df_clean["cancer_stage"].map({
     "Stage I": 0,
     "Stage II": 1,
     "Stage III": 2,
     "Stage IV": 3
-})  
-df["smoking_status"] = df["smoking_status"].map({
-    "Never Smoked": 0,
-    "Former Smoker": 1,
-    "Current Smoker": 2
-})    
-df["treatment_type"] = df["treatment_type"].map({
+})
+
+df_clean["treatment_type"] = df_clean["treatment_type"].map({
     "Surgery": 0,
     "Chemotherapy": 1,
     "Radiation": 2,
-    "Immunotherapy": 3
+    "Combined": 3
 })
-df["family_history"] = df["family_history"].map({
-    "Yes": 1,
-    "No": 0
+
+df_clean["smoking_status"] = df_clean["smoking_status"].map({
+    "Never Smoked": 0,
+    "Passive Smoker": 1,
+    "Former Smoker": 2,
+    "Current Smoker": 3
 })
-    
-print("Categorical columns mapped to numerical values.")
 
-X = df.drop(columns=["survived"])
-y = df["survived"]
+# Prepare features and target
+X = df_clean.drop("survived", axis=1)
+y = df_clean["survived"]
 
-# Drop rows with missing values
-X = X.dropna()
-y = y.loc[X.index]
+print(f"\nFeature columns: {list(X.columns)}")
+print(f"Feature matrix shape: {X.shape}")
+print(f"Target vector shape: {y.shape}")
 
-numeric_transformer = Pipeline([
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42, stratify = y)
+print(f"\nData Split:")
+print(f"Training set shape: {X_train.shape}, {y_train.shape}")
+print(f"Testing set shape: {X_test.shape}, {y_test.shape}")
+
+# Pipeline setup
+numerical_transformer = Pipeline([
     ("scaler", StandardScaler())
 ])
-
 categorical_transformer = Pipeline([
-    ("onehot", OneHotEncoder(handle_unknown="ignore"))
+    ("onehot", OneHotEncoder(handle_unknown='ignore'))
 ])
 
-numerical_features = ["age",
-    "gender",
-    "family_history",
-    "bmi",
-    "cholesterol_level",
-    "hypertension",
-    "asthma",
-    "cirrhosis",
-    "other_cancer"
-]
-categorical_features = [
-    "cancer_stage", 
-    "smoking_status", 
-    "treatment_type"
-]
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numerical_transformer, numerical_features),
+        ('cat', categorical_transformer, categorical_features)
+    ]
+)
 
-preprocessor = ColumnTransformer([
-    ("num", numeric_transformer, numerical_features),
-    ("cat", categorical_transformer, categorical_features)
-], remainder="passthrough")
+# Model pipeline
+print(f"\n=== Training Baseline Random Forest ===")
+rf_baseline = RandomForestClassifier(
+    n_estimators=300,
+    random_state=42,
+    class_weight='balanced',
+    n_jobs=-1
+    )
+rf_baseline.fit(X_train, y_train)
+y_pred_rf = rf_baseline.predict(X_test)
+rf_accuracy = accuracy_score(y_test, y_pred_rf)
+print(f"Baseline RF Accuracy: {rf_accuracy:.4f} ({rf_accuracy*100:.1f}%)")
+    
 
-neg, pos = (y == 0).sum(), (y == 1).sum()
-scale_to_weight = neg / pos
-print(f"Class distribution: {neg} negatives, {pos} positives. Scale to weight: {scale_to_weight:.2f}")
-xgb_model = Pipeline([
-    ("preprocessor", preprocessor),
-    ("classifier", XGBClassifier(
-        use_label_encoder=False, 
-        eval_metric = "logloss", 
-        scale_pos_weight = scale_to_weight, 
-        threshold = 0.52,
-        max_depth=4,
-        min_child_weight=5
+
+model = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('classifier', RandomForestClassifier(
+        random_state = 42,
+        n_jobs = -1,
+        max_depth = None,
+        max_features = "sqrt",
+        min_samples_leaf = 1,
+        min_samples_split = 2,
+        n_estimators = 500
+        
     ))
 ])
-
-# Split data first
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Apply SMOTE only to the training data
-# Apply SMOTE only if you want to use it for RandomForest
-# smote = SMOTE(random_state=42)
-# X_train_resampled, y_train_resampled = smote.fit_resample(X_train, y_train)
-# print("Applied SMOTE to the training data.")
-
-# Train XGBoost on original data
-xgb_model.fit(X_train, y_train)
-print("Model trained successfully.")
-
-# Make predictions
-y_pred = xgb_model.predict(X_test)
-print("Predictions made on the test set.")
-y_proba = xgb_model.predict_proba(X_test)[:, 1]
-thresh = 0.52
-y_pred_thresh = (y_proba > thresh).astype(int)
-
-#Evaluate the model
-accuracy = accuracy_score(y_test, y_pred)
-print("====XGBoost Model Evaluation====")
-print(f"Model accuracy: {accuracy:.4f}")
-print("Confusion Matrix:")
-print(confusion_matrix(y_test, y_pred))
-print("Classification Report:")
-print(classification_report(y_test, y_pred))
-
-from sklearn.metrics import precision_recall_curve
-precision, recall, thresholds = precision_recall_curve(y_test, y_proba)
-# Plot or inspect values to pick a threshold with desired precision
-plt.figure(figsize=(8, 6))
-plt.plot(thresholds, precision[:-1], label='Precision', marker='o')
-plt.plot(thresholds, recall[:-1], label='Recall', marker='o')
-plt.xlabel('Threshold')
-plt.ylabel('Score')
-plt.title('Precision-Recall vs Threshold')
-plt.legend()
-plt.grid()
-plt.show()
