@@ -1,127 +1,139 @@
-#!/usr/bin/env python3
-"""
-Build script for Thyroid Cancer App with Random Forest
-Clean, optimized approach for Random Forest executable
-"""
-
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
+import shutil
 
-def main():
-    print("=== Thyroid Cancer App Build (Random Forest) ===")
-    
-    # Check if the model file exists
-    model_file = "random_forest_thyroid_cancer_model.pkl"
-    if not Path(model_file).exists():
-        print(f"❌ Model file '{model_file}' not found!")
-        print("Please run 'python main.py' first to generate the model.")
-        return False
-    
-    print(f"✅ Found model file: {model_file}")
-    
-    # Clean previous builds
-    print("🧹 Cleaning previous builds...")
-    for folder in ["build", "dist", "__pycache__"]:
-        if Path(folder).exists():
-            subprocess.run(["rmdir", "/s", "/q", folder], shell=True, check=False)
-    
-    # Remove spec files
-    for spec_file in Path(".").glob("*.spec"):
-        spec_file.unlink()
-        print(f"🗑️  Removed old spec file: {spec_file}")
-    
-    # Step 1: Build the executable
-    print("🏗️  Building executable with PyInstaller...")
-    
-    cmd = [
-        'pyinstaller',
-        '--onefile',                    # Single executable file
-        '--windowed',                   # No console window (for GUI)
-        '--add-data', f'{model_file};.',  # Include Random Forest model file
-        '--hidden-import', 'sklearn.ensemble._forest',   # Random Forest internals
-        '--hidden-import', 'sklearn.tree._tree',         # Tree internals
-        '--hidden-import', 'sklearn.tree._splitter',     # Tree splitter
-        '--hidden-import', 'sklearn.tree._criterion',    # Tree criterion
-        '--hidden-import', 'sklearn.tree._utils',        # Tree utils
-        '--hidden-import', 'sklearn.utils._cython_blas', # BLAS operations
-        '--hidden-import', 'sklearn.neighbors.typedefs', # sklearn typedefs
-        '--hidden-import', 'sklearn.neighbors.quad_tree', # quad tree
-        '--hidden-import', 'sklearn.tree',               # sklearn tree
-        '--hidden-import', 'sklearn.ensemble',           # sklearn ensemble
-        '--hidden-import', 'sklearn.pipeline',           # sklearn pipeline
-        '--hidden-import', 'sklearn.preprocessing',      # sklearn preprocessing
-        '--hidden-import', 'sklearn.compose',            # sklearn compose
-        '--hidden-import', 'sklearn.metrics',            # sklearn metrics
-        '--hidden-import', 'sklearn.model_selection',    # sklearn model_selection
-        '--hidden-import', 'sklearn.base',               # sklearn base
-        '--hidden-import', 'sklearn.utils',              # sklearn utils
-        '--hidden-import', 'pandas',                     # Include pandas
-        '--hidden-import', 'pandas._libs.tslibs.np_datetime', # pandas datetime
-        '--hidden-import', 'pandas._libs.tslibs.nattype', # pandas nattype
-        '--hidden-import', 'numpy',                      # Include numpy
-        '--hidden-import', 'numpy.random._pickle',       # numpy pickle
-        '--hidden-import', 'joblib',                     # Include joblib
-        '--hidden-import', 'scipy',                      # Include scipy
-        '--hidden-import', 'scipy.special',              # Include scipy.special
-        '--hidden-import', 'scipy.special._cdflib',      # Include missing scipy module
-        '--hidden-import', 'scipy.sparse',               # scipy sparse
-        '--hidden-import', 'scipy.sparse._matrix',       # scipy sparse matrix
-        '--hidden-import', 'scipy.sparse.csgraph',       # scipy sparse graph
-        '--hidden-import', 'PyQt5.QtCore',               # PyQt5 core
-        '--hidden-import', 'PyQt5.QtGui',                # PyQt5 gui
-        '--hidden-import', 'PyQt5.QtWidgets',            # PyQt5 widgets
-        '--collect-submodules', 'sklearn',               # Collect all sklearn submodules
-        '--collect-submodules', 'scipy',                 # Collect all scipy submodules
-        '--name', 'Thyroid_Cancer_Predictor',            # Output name
-        'thyroid_cancer_app.py'                          # Main script
+
+def build_thyroid_cancer_app():
+    """Build the thyroid cancer recurrence prediction app into a standalone executable."""
+
+    # Check if required files exist
+    required_files = [
+        "thyroid_cancer_app.py",
+        "random_forest_thyroid_cancer_model.pkl",
+        "dataset.csv",
     ]
-    
-    try:
-        print(f"Running PyInstaller...")
-        print("This may take a few minutes...")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        print("✅ Build completed successfully!")
-        
-        # Check if executable was created
-        exe_path = Path("dist/Thyroid_Cancer_Predictor.exe")
-        if exe_path.exists():
-            size_mb = exe_path.stat().st_size / (1024*1024)
-            print(f"✅ Executable created: {exe_path}")
-            print(f"📁 Size: {size_mb:.1f} MB")
-            print(f"📂 Full path: {exe_path.absolute()}")
-            
-            # Test if the executable can be launched
-            print("\n🧪 Testing executable...")
-            test_result = subprocess.run([str(exe_path), "--help"], 
-                                       capture_output=True, timeout=10)
-            if test_result.returncode == 0:
-                print("✅ Executable launches successfully!")
-            else:
-                print("⚠️  Executable created but may have runtime issues")
-                
-        else:
-            print("❌ Executable was not found in dist/ folder")
-            return False
-            
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Build failed: {e}")
-        print("Error output:")
-        print(e.stderr)
-        if e.stdout:
-            print("Standard output:")
-            print(e.stdout)
+
+    # Optional icon file
+    icon_file = "app_icon.ico"  # You can change this filename
+    has_icon = os.path.exists(icon_file)
+
+    missing_files = []
+    for file in required_files:
+        if not os.path.exists(file):
+            missing_files.append(file)
+
+    if missing_files:
+        print(f"Error: Missing required files: {missing_files}")
         return False
-    except subprocess.TimeoutExpired:
-        print("⚠️  Executable test timed out, but build was successful")
-    
-    print("\n=== Build Complete ===")
-    print("📦 Your executable is ready in the 'dist' folder!")
-    print("🎯 You can now distribute the .exe file independently.")
-    return True
+
+    # Clean previous builds
+    if os.path.exists("build"):
+        shutil.rmtree("build")
+    if os.path.exists("dist"):
+        shutil.rmtree("dist")
+
+    spec_files = [f for f in os.listdir(".") if f.endswith(".spec")]
+    for spec_file in spec_files:
+        os.remove(spec_file)
+        print(f"Removed {spec_file}")
+
+    print("Building Thyroid Cancer Recurrence Prediction App...")
+    print("Using optimized Random Forest model (95.5% accuracy)...")
+
+    if has_icon:
+        print(f"Using custom icon: {icon_file}")
+    else:
+        print("No custom icon found. Using default Python icon.")
+        print(
+            f"To add a custom icon, place a .ico file named '{icon_file}' in this folder."
+        )
+
+    # PyInstaller command with all necessary options
+    cmd = [
+        "pyinstaller",
+        "--onefile",
+        "--windowed",
+        "--name=Thyroid_Cancer_Recurrence_Predictor",
+    ]
+
+    # Add icon if available
+    if has_icon:
+        cmd.extend(["--icon", icon_file])
+
+    # Add data files and imports
+    cmd.extend(
+        [
+            "--add-data=random_forest_thyroid_cancer_model.pkl;.",
+            "--add-data=dataset.csv;.",
+            "--hidden-import=sklearn.ensemble",
+            "--hidden-import=sklearn.ensemble._forest",
+            "--hidden-import=sklearn.tree",
+            "--hidden-import=sklearn.tree._tree",
+            "--hidden-import=sklearn.preprocessing",
+            "--hidden-import=sklearn.preprocessing._data",
+            "--hidden-import=sklearn.utils._typedefs",
+            "--hidden-import=sklearn.neighbors._typedefs",
+            "--hidden-import=sklearn.neighbors._quad_tree",
+            "--hidden-import=sklearn.tree._utils",
+            "--hidden-import=sklearn.utils.validation",
+            "--hidden-import=sklearn.utils._array_api",
+            "--hidden-import=sklearn.base",
+            "--hidden-import=sklearn.compose",
+            "--hidden-import=sklearn.compose._column_transformer",
+            "--hidden-import=sklearn.pipeline",
+            "--hidden-import=joblib",
+            "--hidden-import=pandas",
+            "--hidden-import=numpy",
+            "--hidden-import=scipy",
+            "--hidden-import=scipy.special",
+            "--hidden-import=scipy.special._cdflib",
+            "--hidden-import=scipy.special._ufuncs",
+            "--hidden-import=scipy.special._ufuncs_cxx",
+            "--hidden-import=scipy.linalg",
+            "--hidden-import=scipy.sparse",
+            "--hidden-import=scipy.sparse.csgraph",
+            "--hidden-import=scipy.sparse._matrix",
+            "--hidden-import=scipy.sparse._base",
+            "--hidden-import=PyQt5",
+            "thyroid_cancer_app.py",
+        ]
+    )
+
+    try:
+        print("Running PyInstaller...")
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("Build completed successfully!")
+
+            # Check if exe was created
+            exe_path = "dist/Thyroid_Cancer_Recurrence_Predictor.exe"
+            if os.path.exists(exe_path):
+                size_mb = os.path.getsize(exe_path) / (1024 * 1024)
+                print(f"Executable created: {exe_path}")
+                print(f"Size: {size_mb:.1f} MB")
+                return True
+            else:
+                print("Error: Executable not found in dist folder")
+                return False
+        else:
+            print("Build failed!")
+            print("STDOUT:", result.stdout)
+            print("STDERR:", result.stderr)
+            return False
+
+    except Exception as e:
+        print(f"Error during build: {e}")
+        return False
+
 
 if __name__ == "__main__":
-    success = main()
-    if not success:
-        sys.exit(1)
+    success = build_thyroid_cancer_app()
+    if success:
+        print("\n✅ Thyroid Cancer Recurrance Prediction App built successfully!")
+        print("You can find the executable in the 'dist' folder")
+        print("Model accuracy: 95.5% with optimized Random Forest")
+    else:
+        print("\n❌ Build failed. Check the error messages above.")

@@ -1,13 +1,23 @@
 import sys
 import os
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QFormLayout,
-    QLineEdit, QComboBox, QPushButton, QMessageBox, QFrame
+    QApplication,
+    QWidget,
+    QLabel,
+    QVBoxLayout,
+    QHBoxLayout,
+    QFormLayout,
+    QLineEdit,
+    QComboBox,
+    QPushButton,
+    QMessageBox,
+    QFrame,
 )
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 import joblib
 import pandas as pd
+
 
 # Fix the model path for both development and executable
 def get_resource_path(relative_path):
@@ -18,8 +28,27 @@ def get_resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
+
 MODEL_PATH = get_resource_path("random_forest_thyroid_cancer_model.pkl")
-feature_names = ["Age", "Gender", "Smoking", "Hx Smoking", "Hx Radiothreapy", "Thyroid Function", "Physical Examination", "Adenopathy", "Pathology", "Focality", "Risk", "T", "N", "M", "Stage", "Response"]
+feature_names = [
+    "Age",
+    "Gender",
+    "Smoking",
+    "Hx Smoking",
+    "Hx Radiothreapy",
+    "Thyroid Function",
+    "Physical Examination",
+    "Adenopathy",
+    "Pathology",
+    "Focality",
+    "Risk",
+    "T",
+    "N",
+    "M",
+    "Stage",
+    "Response",
+]
+
 
 class ThyroidCancerApp(QWidget):
     def __init__(self):
@@ -32,7 +61,7 @@ class ThyroidCancerApp(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        
+
         top_layout = QVBoxLayout()
         second_layout = QHBoxLayout()
         form_layout = QVBoxLayout()
@@ -41,96 +70,101 @@ class ThyroidCancerApp(QWidget):
         title = QLabel("Thyroid Cancer Prediction")
         title.setAlignment(Qt.AlignCenter)
         title.setFont(QFont("Gothic", 20, QFont.Bold))
-        top_layout.addWidget(title)        
-        
+        top_layout.addWidget(title)
+
         # Form fields
         self.add_input_field("Age", "Age")
-        
-        self.add_combo_field("Gender", "Gender", {
-            "Male": 1,
-            "Female": 0
-        })
-        self.add_combo_field("Smoking", "Smoking", {
-            "Yes": 1,
-            "No": 0
-        })
-        self.add_combo_field("Hx Smoking", "Hx Smoking", {
-            "Yes": 1,
-            "No": 0
-        })
-        self.add_combo_field("Hx Radiothreapy", "Hx Radiothreapy", {
-            "Yes": 1,
-            "No": 0
-        })
-        self.add_combo_field("Thyroid Function", "Thyroid Function", {
-            "Euthyroid": 4,
-            "Clinical Hyperthyroidism": 3,
-            "Clinical Hypothyroidism": 2,
-            "Subclinical Hyperthyroidism": 1,
-            "Subclinical Hypothyroidism": 0
-        })
-        self.add_combo_field("Physical Examination", "Physical Examination", {
-            "Multinodular goiter": 4,
-            "Single modular goiter-left": 3,
-            "Single modular goiter-right": 2,
-            "Diffuse goiter": 1,
-            "Normal": 0
-        })
-        self.add_combo_field("Adenopathy", "Adenopathy", {
-            "Extensive": 5,
-            "Bilateral": 4,
-            "Posterior": 3,
-            "Left": 2,
-            "Right": 1,
-            "No": 0
-        })
-        self.add_combo_field("Pathology", "Pathology", {
-            "Papillary": 3,
-            "Follicular": 2,
-            "Medullary": 1,
-            "Hurthle Cell": 0
-        })
-        self.add_combo_field("Focality", "Focality", {
-            "Unifocal": 1,
-            "Multifocal": 0
-        })
-        self.add_combo_field("Risk", "Risk", {
-            "High": 2,
-            "Intermediate": 1,
-            "Low": 0
-        })
-        self.add_combo_field("T", "T", {
-            "T4b": 6,
-            "T4a": 5,
-            "T3b": 4,
-            "T3a": 3,
-            "T2": 2,
-            "T1b": 1,
-            "T1a": 0
-        })
-        self.add_combo_field("N", "N", {
-            "N1b": 3,
-            "N1a": 2,
-            "Nx": 1,
-            "N0": 0
-        })
-        self.add_combo_field("M", "M", {
-            "M1": 1,
-            "M0": 0
-        })
-        self.add_combo_field("Stage", "Stage", {
-            "IVB": 4,
-            "IVA": 3,
-            "III": 2,
-            "II": 1,
-            "I": 0
-        })
-        self.add_combo_field("Response", "Response", {
-            "Excellent": 3,
-            "Biochemical Incomplete": 2,
-            "Structural Incomplete": 1,
-            "Intermediate": 0
-        })
+
+        self.add_combo_field("Gender", "Gender", {"Male": "M", "Female": "F"})
+        self.add_combo_field("Smoking", "Smoking", {"Yes": "Yes", "No": "No"})
+        self.add_combo_field("Hx Smoking", "Hx Smoking", {"Yes": "Yes", "No": "No"})
+        self.add_combo_field(
+            "Hx Radiothreapy", "Hx Radiothreapy", {"Yes": "Yes", "No": "No"}
+        )
+        self.add_combo_field(
+            "Thyroid Function",
+            "Thyroid Function",
+            {
+                "Euthyroid": "Euthyroid",
+                "Clinical Hyperthyroidism": "Clinical Hyperthyroidism",
+                "Clinical Hypothyroidism": "Clinical Hypothyroidism",
+                "Subclinical Hyperthyroidism": "Subclinical Hyperthyroidism",
+                "Subclinical Hypothyroidism": "Subclinical Hypothyroidism",
+            },
+        )
+        self.add_combo_field(
+            "Physical Examination",
+            "Physical Examination",
+            {
+                "Multinodular goiter": "Multinodular goiter",
+                "Single modular goiter-left": "Single modular goiter-left",
+                "Single modular goiter-right": "Single modular goiter-right",
+                "Diffuse goiter": "Diffuse goiter",
+                "Normal": "Normal",
+            },
+        )
+        self.add_combo_field(
+            "Adenopathy",
+            "Adenopathy",
+            {
+                "Extensive": "Extensive",
+                "Bilateral": "Bilateral",
+                "Posterior": "Posterior",
+                "Left": "Left",
+                "Right": "Right",
+                "No": "No",
+            },
+        )
+        self.add_combo_field(
+            "Pathology",
+            "Pathology",
+            {
+                "Papillary": "Papillary",
+                "Follicular": "Follicular",
+                "Medullary": "Medullary",
+                "Hurthle Cell": "Hurthle Cell",
+            },
+        )
+        self.add_combo_field(
+            "Focality", "Focality", {"Unifocal": "Unifocal", "Multifocal": "Multifocal"}
+        )
+        self.add_combo_field(
+            "Risk",
+            "Risk",
+            {"High": "High", "Intermediate": "Intermediate", "Low": "Low"},
+        )
+        self.add_combo_field(
+            "T",
+            "T",
+            {
+                "T4b": "T4b",
+                "T4a": "T4a",
+                "T3b": "T3b",
+                "T3a": "T3a",
+                "T2": "T2",
+                "T1b": "T1b",
+                "T1a": "T1a",
+            },
+        )
+        self.add_combo_field(
+            "N", "N", {"N1b": "N1b", "N1a": "N1a", "Nx": "Nx", "N0": "N0"}
+        )
+        self.add_combo_field("M", "M", {"M1": "M1", "M0": "M0"})
+        self.add_combo_field(
+            "Stage",
+            "Stage",
+            {"IVB": "IVB", "IVA": "IVA", "III": "III", "II": "II", "I": "I"},
+        )
+        self.add_combo_field(
+            "Response",
+            "Response",
+            {
+                "Excellent": "Excellent",
+                "Biochemical Incomplete": "Biochemical Incomplete",
+                "Structural Incomplete": "Structural Incomplete",
+                "Intermediate": "Intermediate",
+            },
+        )
 
         # Form Layout
         form_section.addRow(QLabel("Age:"), self.fields["Age"])
@@ -138,8 +172,12 @@ class ThyroidCancerApp(QWidget):
         form_section.addRow(QLabel("Smoking:"), self.fields["Smoking"])
         form_section.addRow(QLabel("Hx Smoking:"), self.fields["Hx Smoking"])
         form_section.addRow(QLabel("Hx Radiothreapy:"), self.fields["Hx Radiothreapy"])
-        form_section.addRow(QLabel("Thyroid Function:"), self.fields["Thyroid Function"])
-        form_section.addRow(QLabel("Physical Examination:"), self.fields["Physical Examination"])
+        form_section.addRow(
+            QLabel("Thyroid Function:"), self.fields["Thyroid Function"]
+        )
+        form_section.addRow(
+            QLabel("Physical Examination:"), self.fields["Physical Examination"]
+        )
         form_section.addRow(QLabel("Adenopathy:"), self.fields["Adenopathy"])
         form_section.addRow(QLabel("Pathology:"), self.fields["Pathology"])
         form_section.addRow(QLabel("Focality:"), self.fields["Focality"])
@@ -165,17 +203,17 @@ class ThyroidCancerApp(QWidget):
         self.clear_button.setFont(QFont("Gothic", 14))
         self.clear_button.clicked.connect(self.on_clear)
         self.clear_button.setToolTip("Clear the form fields")
-        
+
         form_widget = QWidget()
         form_widget.setFixedWidth(400)
-        
+
         form_layout.addLayout(form_section)
         form_layout.addWidget(form_widget)
         form_layout.addStretch(20)
         form_layout.addWidget(h_line)
         form_layout.addWidget(self.submit_button)
         form_layout.addWidget(self.clear_button)
-        
+
         # Result Label
         result_widget = QWidget()
         result_widget.setFixedWidth(400)
@@ -186,17 +224,17 @@ class ThyroidCancerApp(QWidget):
         self.result_label.setObjectName("result_label")
         self.result_label.setAlignment(Qt.AlignCenter)
         self.result_title.setAlignment(Qt.AlignCenter)
-        
+
         result_layout.addStretch(1)
         result_layout.addWidget(self.result_title)
         result_layout.addWidget(self.result_label)
         result_layout.addStretch(1)
-        
+
         v_line = QFrame()
         v_line.setFrameShape(QFrame.VLine)
         v_line.setFrameShadow(QFrame.Sunken)
         v_line.setFixedHeight(400)
-        
+
         second_layout.addLayout(form_layout)
         second_layout.addWidget(v_line)
         second_layout.addLayout(result_layout)
@@ -214,14 +252,31 @@ class ThyroidCancerApp(QWidget):
         for name, value in options.items():
             combo.addItem(name, value)
         self.fields[key] = combo
-        
+
     def make_prediction(self):
         try:
 
-            feature_names = ["Age", "Gender", "Smoking", "Hx Smoking", "Hx Radiothreapy", "Thyroid Function", "Physical Examination", "Adenopathy", "Pathology", "Focality", "Risk", "T", "N", "M", "Stage", "Response"]
+            feature_names = [
+                "Age",
+                "Gender",
+                "Smoking",
+                "Hx Smoking",
+                "Hx Radiothreapy",
+                "Thyroid Function",
+                "Physical Examination",
+                "Adenopathy",
+                "Pathology",
+                "Focality",
+                "Risk",
+                "T",
+                "N",
+                "M",
+                "Stage",
+                "Response",
+            ]
 
             input_data = []
-            
+
             for key in feature_names:
                 widget = self.fields[key]
                 if isinstance(widget, QLineEdit):
@@ -240,24 +295,28 @@ class ThyroidCancerApp(QWidget):
             probability = self.model.predict_proba(input_df)[0][1]
 
             if prediction == 1:
-                self.result_label.setText(f"Cancer Has Recurred\nProbability: {probability:.2f}")
+                self.result_label.setText(
+                    f"Cancer Has Recurred\nProbability: {probability:.2f}"
+                )
                 self.result_label.setStyleSheet("color: red; font-weight: bold;")
             elif prediction == 0:
-                self.result_label.setText(f"Cancer Has Not Recurred\nProbability: {probability:.2f}")
+                self.result_label.setText(
+                    f"Cancer Has Not Recurred\nProbability: {probability:.2f}"
+                )
                 self.result_label.setStyleSheet("color: green; font-weight: bold;")
-        
+
         except ValueError as ve:
             QMessageBox.critical(self, "Input Error", str(ve))
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Prediction Failed: {e}")
-        
+
     def on_clear(self):
         for key in self.fields:
             if isinstance(self.fields[key], QLineEdit):
                 self.fields[key].clear()
             elif isinstance(self.fields[key], QComboBox):
                 self.fields[key].setCurrentIndex(0)
-    
+
     @staticmethod
     def apply_dark_theme(app):
         dark_style = """
@@ -293,6 +352,7 @@ class ThyroidCancerApp(QWidget):
             }
         """
         app.setStyleSheet(dark_style)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
