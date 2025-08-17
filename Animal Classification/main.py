@@ -1,10 +1,6 @@
-from pyexpat import model
 import matplotlib.pyplot as plt
-import numpy as np
-import PIL
 import tensorflow as tf
 import pathlib
-import joblib
 
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
