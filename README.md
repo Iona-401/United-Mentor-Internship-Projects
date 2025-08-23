@@ -4,45 +4,47 @@ A comprehensive collection of machine learning applications for medical diagnosi
 
 ## 📋 Project Overview
 
-This repository contains **4 medical AI prediction applications** built using machine learning techniques to assist healthcare professionals in diagnosis and prognosis assessment. Each project includes both training scripts and standalone GUI applications compiled as Windows executables.
+This repository contains **4 AI prediction applications** built using machine learning techniques to assist healthcare professionals in diagnosis and prognosis assessment. Each project includes both training scripts and standalone GUI applications compiled as Windows executables.
 
 ## 🚀 Completed Projects
 
-### 1. 🦋 **Thyroid Cancer Recurrence Prediction**
-- **Folder**: `thyroid_cancer/`
+### 1. ❤️ **Thyroid Cancer Recurrence Prediction**
+- **Folder**: `Thyroid_Cancer_Prediction/`
 - **Model**: Random Forest Classifier
-- **Accuracy**: 96%+ (optimized with parameter tuning)
+- **Accuracy**: 96% (optimized with parameter tuning)
 - **Features**: 16 clinical parameters including TNM staging, pathology, demographics
 - **Executable**: `Thyroid_Cancer_Predictor.exe` (232.6 MB)
 - **Status**: ✅ **Production Ready**
 
-### 2. ❤️ **Heart Disease Risk Assessment**
-- **Folder**: `Heart Disease/`
+### 2. 🫀 **Heart Disease Risk Assessment**
+- **Folder**: `Heart_Disease_Prediction/`
 - **Model**: Random Forest Classifier  
 - **Accuracy**: High performance with balanced dataset
 - **Features**: 13 cardiovascular risk factors
 - **Executable**: `Heart_Disease_Predictor.exe` (165.3 MB)
 - **Status**: ✅ **Production Ready**
 
-### 3. 🫁 **Liver Cirrhosis Stage Classification**
-- **Folder**: `liver_cirrhosis_stage/`
+### 3. ❤️‍🩹 **Liver Cirrhosis Stage Classification**
+- **Folder**: `Liver_Cirrhosis_Stage_Prediction/`
 - **Model**: Optimized Random Forest with GridSearchCV
 - **Accuracy**: 95.5% (after parameter tuning)
 - **Features**: 18 clinical and laboratory parameters
 - **Executable**: `Liver_Cirrhosis_Predictor.exe` (193.6 MB)
 - **Status**: ✅ **Production Ready**
 
-### 4. 🫁 **Lung Cancer Survival Prediction**
-- **Folder**: `Lung Cancer/`
-- **Model**: In development - addressing data quality issues
-- **Accuracy**: 51% (baseline - improvement in progress)
-- **Features**: 12 clinical parameters including staging, treatment, demographics
-- **Status**: 🚧 **Under Development**
+### 4. 😺 **Animal Classification (Dual-Stage AI)**
+- **Folder**: `Animal_Classification/`
+- **Model**: Dual-Stage EfficientNetV2B0 Architecture (Stage 1 + Stage 2)
+- **Accuracy**: High precision with intelligent prediction consolidation
+- **Features**: 15 animal classes with advanced ensemble prediction
+- **Executable**: `Animal_Classification_Dual_Stage.exe` (577.5 MB)
+- **Status**: ✅ **Production Ready**
 
 ## 🛠 Technology Stack
 
 ### **Core Libraries**
 - **scikit-learn**: Machine learning algorithms and preprocessing
+- **tensorflow**: Neural Networks and deep learning
 - **pandas**: Data manipulation and analysis
 - **numpy**: Numerical computations
 - **matplotlib/seaborn**: Data visualization
@@ -58,6 +60,7 @@ This repository contains **4 medical AI prediction applications** built using ma
 
 ### **Machine Learning Techniques**
 - **Random Forest**: Primary algorithm for stability and interpretability
+- **Neural Networks**: Primary algorithm for image classification
 - **Parameter Tuning**: GridSearchCV for optimal hyperparameters
 - **Class Balancing**: SMOTE and class weights for imbalanced datasets
 - **Feature Engineering**: Domain-specific medical feature creation
@@ -70,9 +73,7 @@ This repository contains **4 medical AI prediction applications** built using ma
 | Thyroid Cancer | Random Forest | 96%+ | 232.6 MB | ✅ Ready |
 | Heart Disease | Random Forest | High | 165.3 MB | ✅ Ready |
 | Liver Cirrhosis | Random Forest | 95.5% | 193.6 MB | ✅ Ready |
-| Lung Cancer | Random Forest | 51%* | TBD | 🚧 Developing |
-
-*Under improvement - data quality challenges identified
+| Animal Classification | Dual-Stage EfficientNetV2B0 | High | 577.5 MB | ✅ Ready |
 
 ## 🏗 Project Structure
 
@@ -104,28 +105,30 @@ UM Internship Projects/
 │   ├── random_forest_liver_cirrhosis_model.pkl
 │   └── dist/Liver_Cirrhosis_Predictor.exe
 │
-├── Lung Cancer/
-│   ├── main.py                              # Model training script (in development)
-│   ├── dataset_med.csv                     # Training data
-│   └── temp.py                             # Data analysis scripts
+├── Animal_Classification/
+│   ├── main.py                              # Model training script
+│   ├── animal_classification_app.py         # Dual-stage GUI application
+│   ├── build.py                            # Executable build script
+│   ├── aniClass_EFF_Stage1.pkl             # Stage 1 EfficientNet model
+│   ├── aniClass_EFF_Stage2.pkl             # Stage 2 EfficientNet model
+│   ├── class_names.json                    # Animal class definitions
+│   └── dist/Animal_Classification_Dual_Stage.exe
 │
 └── README.md                               # This file
 ```
 
 ## 🚀 Quick Start Guide
 
-### **For End Users (Healthcare Professionals)**
+### **For End Users**
 1. Navigate to any project's `dist/` folder
 2. Double-click the `.exe` file to launch the application
 3. Enter patient parameters in the GUI
 4. Click "Predict" to get risk assessment
 5. No software installation required!
 
-### **For Developers**
-
 #### **Prerequisites**
 ```bash
-pip install scikit-learn pandas numpy matplotlib seaborn PyQt5 joblib imbalanced-learn
+pip install scikit-learn pandas numpy matplotlib seaborn PyQt5 joblib imbalanced-learn tensorflow
 ```
 
 #### **Training a Model**
@@ -188,6 +191,12 @@ python build.py
 - **Key Parameters**: Laboratory values, imaging results, clinical symptoms
 - **Clinical Value**: Treatment selection and liver transplant evaluation
 
+### **Animal Classification Application**
+- **Use Case**: Computer vision research and educational demonstrations
+- **Target Users**: Researchers, educators, students
+- **Key Parameters**: Image processing with dual-stage AI architecture
+- **Technical Value**: Advanced ensemble learning with EfficientNet models
+
 ## 🔬 Research & Development Notes
 
 ### **Algorithm Selection Rationale**
@@ -208,10 +217,7 @@ python build.py
 - **GUI threading**: Responsive interface during predictions
 - **Error handling**: Medical application reliability requirements
 
-## 📊 Future Enhancements
-
 ### **Short Term (Current Sprint)**
-- 🔄 **Lung Cancer Model**: Address data quality issues, improve accuracy
 - 📱 **Mobile Compatibility**: Explore cross-platform deployment
 - 🔍 **Model Explainability**: Add SHAP values for clinical interpretability
 
@@ -227,11 +233,10 @@ python build.py
 
 ## 👥 Contributors
 
-**Developed during University of Miami Internship Program**
-- **Intern**: [Your Name]
-- **Supervisor**: [Supervisor Name]
-- **Institution**: University of Miami
-- **Period**: [Internship Period]
+**Developed during Unified Mentor Internship Program**
+- **Intern**:  Sidhartha Das
+- **Institution**: Unified Mentor
+- **Period**: Jun 2024 - Sep 2024
 
 ## 📄 License & Usage
 
@@ -242,23 +247,9 @@ python build.py
 
 ## 🤝 Acknowledgments
 
-- **University of Miami** for internship opportunity and resources
+- **Unified Mentor** for internship opportunity and datasets
 - **Medical Faculty** for domain expertise and guidance
 - **Open Source Community** for machine learning libraries and tools
 - **Healthcare Professionals** for clinical insights and feedback
 
 ---
-
-## 📞 Contact & Support
-
-For questions about this medical AI suite:
-- **Academic Inquiries**: Contact University of Miami Internship Program
-- **Technical Issues**: See individual project folders for specific documentation
-- **Medical Applications**: Consult with qualified healthcare professionals
-
-**⚠️ Important**: These AI models are research tools and should not replace professional medical judgment.
-
----
-
-*Last Updated: January 2025*
-*Status: 3/4 Projects Production Ready*

@@ -1,0 +1,3 @@
+('C:\\Users\\sidli\\Desktop\\UM Internship '
+ 'Projects\\Animal_Classification\\build\\Animal_Classification_Dual_Stage\\PYZ-00.pyz',
+ [])

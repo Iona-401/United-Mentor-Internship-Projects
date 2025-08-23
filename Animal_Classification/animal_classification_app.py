@@ -20,16 +20,32 @@ import numpy as np
 import joblib
 from PIL import Image
 
-MODEL_PATH = "Animal Classification/aniClass_EFF_Stage2.pkl"
+
+def get_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # Development mode: use current directory
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+
+# Model paths that work in both development and PyInstaller modes
+MODEL_PATH_1 = get_resource_path("aniClass_EFF_Stage1.pkl")
+MODEL_PATH_2 = get_resource_path("aniClass_EFF_Stage2.pkl")
 
 
 class PredictionThread(QThread):
-    prediction_ready = pyqtSignal(str, float)
+    prediction_ready = pyqtSignal(str, float, str)
 
-    def __init__(self, image_path, model):
+    def __init__(self, image_path, model_stage1, model_stage2):
         super().__init__()
         self.image_path = image_path
-        self.model = model
+        self.model_stage1 = model_stage1
+        self.model_stage2 = model_stage2
 
     def run(self):
         try:
@@ -37,11 +53,6 @@ class PredictionThread(QThread):
             img = img.resize((224, 224))
             img_array = np.array(img)
             img_array = np.expand_dims(img_array, axis=0)
-
-            # Set model to inference mode (disable augmentation)
-            prediction = self.model(img_array, training=False)
-            predicted_class_idx = np.argmax(prediction, axis=1)[0]
-            confidence = prediction[0][predicted_class_idx]
 
             animal_classes = [
                 "Bear",
@@ -61,11 +72,136 @@ class PredictionThread(QThread):
                 "Zebra",
             ]
 
-            predicted_animal = animal_classes[predicted_class_idx]
-            self.prediction_ready.emit(predicted_animal, confidence)
+            predictions = {}
+            details_info = []
+
+            # Stage 1 Prediction
+            if self.model_stage1 is not None:
+                try:
+                    prediction1 = self.model_stage1(img_array, training=False)
+                    pred1_idx = np.argmax(prediction1, axis=1)[0]
+                    conf1 = prediction1[0][pred1_idx]
+                    pred1_class = animal_classes[pred1_idx]
+
+                    predictions["stage1"] = {
+                        "class": pred1_class,
+                        "confidence": float(conf1),
+                        "probabilities": prediction1[0],
+                    }
+                    details_info.append(f"Stage 1: {pred1_class} ({conf1:.2%})")
+
+                except Exception as e:
+                    details_info.append(f"Stage 1 Error: {str(e)}")
+
+            # Stage 2 Prediction
+            if self.model_stage2 is not None:
+                try:
+                    prediction2 = self.model_stage2(img_array, training=False)
+                    pred2_idx = np.argmax(prediction2, axis=1)[0]
+                    conf2 = prediction2[0][pred2_idx]
+                    pred2_class = animal_classes[pred2_idx]
+
+                    predictions["stage2"] = {
+                        "class": pred2_class,
+                        "confidence": float(conf2),
+                        "probabilities": prediction2[0],
+                    }
+                    details_info.append(f"Stage 2: {pred2_class} ({conf2:.2%})")
+
+                except Exception as e:
+                    details_info.append(f"Stage 2 Error: {str(e)}")
+
+            # Consolidate predictions
+            if predictions:
+                final_prediction, final_confidence, consolidation_details = (
+                    self.consolidate_predictions(predictions, animal_classes)
+                )
+                details_info.extend(consolidation_details)
+            else:
+                final_prediction = "No models available"
+                final_confidence = 0.0
+                details_info.append("No valid predictions obtained")
+
+            # Format details
+            details_text = "\n".join(details_info)
+
+            self.prediction_ready.emit(final_prediction, final_confidence, details_text)
 
         except Exception as e:
-            self.prediction_ready.emit(f"Error: {str(e)}", 0.0)
+            self.prediction_ready.emit(
+                f"Error: {str(e)}", 0.0, f"Processing error: {str(e)}"
+            )
+
+    def consolidate_predictions(self, predictions, animal_classes):
+        """
+        Consolidate predictions from multiple models using different strategies
+        """
+        details = []
+
+        # Strategy 1: If both models agree on the class
+        if (
+            len(predictions) == 2
+            and "stage1" in predictions
+            and "stage2" in predictions
+        ):
+            stage1_pred = predictions["stage1"]
+            stage2_pred = predictions["stage2"]
+
+            if stage1_pred["class"] == stage2_pred["class"]:
+                # Both models agree - use weighted average of confidence
+                # Give slightly more weight to stage2 (fine-tuned model)
+                consolidated_confidence = (
+                    stage1_pred["confidence"] * 0.4 + stage2_pred["confidence"] * 0.6
+                )
+                details.append(f"Both models agree on: {stage1_pred['class']}")
+                details.append(
+                    f"Consolidated confidence: {consolidated_confidence:.2%}"
+                )
+                return stage1_pred["class"], consolidated_confidence, details
+            else:
+                # Models disagree - use the one with higher confidence
+                if stage1_pred["confidence"] > stage2_pred["confidence"]:
+                    winner = "Stage 1"
+                    final_class = stage1_pred["class"]
+                    final_confidence = stage1_pred["confidence"]
+                else:
+                    winner = "Stage 2"
+                    final_class = stage2_pred["class"]
+                    final_confidence = stage2_pred["confidence"]
+
+                details.append(f"Models disagree!")
+                details.append(f"Using {winner} prediction: {final_class}")
+                return final_class, final_confidence, details
+
+        # Strategy 2: Ensemble prediction (average probabilities)
+        elif len(predictions) >= 2:
+            # Average the probability distributions
+            avg_probabilities = np.zeros(len(animal_classes))
+            model_count = 0
+
+            for stage, pred_data in predictions.items():
+                avg_probabilities += pred_data["probabilities"]
+                model_count += 1
+
+            avg_probabilities /= model_count
+            final_idx = np.argmax(avg_probabilities)
+            final_class = animal_classes[final_idx]
+            final_confidence = avg_probabilities[final_idx]
+
+            details.append(f"Ensemble prediction from {model_count} models")
+            details.append(f"Final result: {final_class} ({final_confidence:.2%})")
+            return final_class, float(final_confidence), details
+
+        # Strategy 3: Single model prediction
+        elif len(predictions) == 1:
+            single_pred = list(predictions.values())[0]
+            stage_name = list(predictions.keys())[0]
+            details.append(f"Single model prediction ({stage_name.title()})")
+            return single_pred["class"], single_pred["confidence"], details
+
+        # Fallback
+        else:
+            return "Unknown", 0.0, ["No valid predictions available"]
 
 
 class DropArea(QLabel):
@@ -162,10 +298,11 @@ class DropArea(QLabel):
 class AnimalClassificationApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.model = None
+        self.model_stage1 = None
+        self.model_stage2 = None
         self.prediction_thread = None
         self.init_ui()
-        self.load_model()
+        self.load_models()
 
     def init_ui(self):
         self.setWindowTitle("Animal Classification App")
@@ -246,6 +383,23 @@ class AnimalClassificationApp(QMainWindow):
         self.confidence_label.setAlignment(Qt.AlignCenter)
         results_layout.addWidget(self.confidence_label)
 
+        # Details Text Area
+        self.details_text = QTextEdit()
+        self.details_text.setFont(QFont("Consolas", 10))
+        self.details_text.setMaximumHeight(150)
+        self.details_text.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 5px;
+            }
+        """
+        )
+        self.details_text.hide()
+        results_layout.addWidget(self.details_text)
+
         # Progress Bar
         self.progress_bar = QProgressBar()
         self.progress_bar.setRange(0, 0)
@@ -253,6 +407,31 @@ class AnimalClassificationApp(QMainWindow):
         results_layout.addWidget(self.progress_bar)
 
         right_layout.addWidget(results_frame)
+
+        # Model Status
+        model_status_frame = QFrame()
+        model_status_frame.setStyleSheet(
+            """
+            QFrame {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                background-color: #f8f9fa;
+                padding: 10px;
+                margin-top: 10px;
+            }
+        """
+        )
+        model_status_layout = QVBoxLayout(model_status_frame)
+
+        status_title = QLabel("Model Status")
+        status_title.setFont(QFont("Gothic", 14, QFont.Bold))
+        model_status_layout.addWidget(status_title)
+
+        self.model_status_label = QLabel("Loading models...")
+        self.model_status_label.setFont(QFont("Gothic", 12))
+        model_status_layout.addWidget(self.model_status_label)
+
+        right_layout.addWidget(model_status_frame)
 
         button_layout = QHBoxLayout()
 
@@ -277,71 +456,89 @@ class AnimalClassificationApp(QMainWindow):
         self.clear_button.clicked.connect(self.clear_results)
         button_layout.addWidget(self.clear_button)
 
+        self.toggle_details_button = QPushButton("Show Details")
+        self.toggle_details_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px 20px;
+                font-size: 16px;
+                font-family: "Gothic";
+            }
+
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+        """
+        )
+        self.toggle_details_button.clicked.connect(self.toggle_details)
+        self.toggle_details_button.hide()  # Initially hidden
+        button_layout.addWidget(self.toggle_details_button)
+
         right_layout.addLayout(button_layout)
         content_layout.addLayout(right_layout)
         main_layout.addLayout(content_layout)
 
         # Status Bar
-        self.statusBar().showMessage("Load an Image to classify.")
+        self.statusBar().showMessage("Loading models...")
 
-    def load_model(self):
+    def load_models(self):
+        """Load both Stage 1 and Stage 2 models"""
+        models_loaded = []
+        models_failed = []
+
+        # Load Stage 1 Model
         try:
-            model_path = MODEL_PATH
-
-            if os.path.exists(model_path):
-                print(f"Loading model from: {model_path}")
-
-                # Check file extension to determine loading method
-                if model_path.endswith(".pkl"):
-                    # Load .pkl file using joblib
-                    self.model = joblib.load(model_path)
-                    print("Loaded .pkl model using joblib")
-                elif model_path.endswith(".h5"):
-                    # Load .h5 file using TensorFlow
-                    self.model = tf.keras.models.load_model(model_path)
-                    print("Loaded .h5 model using TensorFlow")
-                else:
-                    raise ValueError(f"Unsupported model format: {model_path}")
-
-                # DEBUG: Print detailed model info
-                print("=== MODEL DEBUG INFO ===")
-                print(f"Model type: {type(self.model)}")
-
-                # Try to get model info (works for both .h5 and .pkl)
-                try:
-                    if hasattr(self.model, "input_shape"):
-                        print(f"Model input shape: {self.model.input_shape}")
-                        print(f"Model output shape: {self.model.output_shape}")
-                        print(
-                            f"Number of classes in model: {self.model.output_shape[-1]}"
-                        )
-                    else:
-                        print("Model info not available (likely .pkl format)")
-                except Exception as e:
-                    print(f"Could not get model info: {e}")
-
-                print(f"Number of classes in our list: 15")
-
-                # Try to get model summary (only works for TensorFlow models)
-                try:
-                    if hasattr(self.model, "summary"):
-                        self.model.summary()
-                except Exception as e:
-                    print(f"Could not display model summary: {e}")
-                print("========================")
-
-                self.statusBar().showMessage("Model loaded successfully.")
+            if os.path.exists(MODEL_PATH_1):
+                print(f"Loading Stage 1 model from: {MODEL_PATH_1}")
+                if MODEL_PATH_1.endswith(".pkl"):
+                    self.model_stage1 = joblib.load(MODEL_PATH_1)
+                elif MODEL_PATH_1.endswith(".h5"):
+                    self.model_stage1 = tf.keras.models.load_model(MODEL_PATH_1)
+                models_loaded.append("Stage 1")
+                print("✅ Stage 1 model loaded successfully")
             else:
-                print(f"Model file not found at: {model_path}")
-                self.statusBar().showMessage(f"Model file not found: {model_path}")
+                models_failed.append("Stage 1 (file not found)")
         except Exception as e:
-            print(f"Error loading model: {str(e)}")
-            self.statusBar().showMessage(f"Error loading model: {str(e)}")
+            models_failed.append(f"Stage 1 ({str(e)})")
+            print(f"❌ Failed to load Stage 1 model: {e}")
+
+        # Load Stage 2 Model
+        try:
+            if os.path.exists(MODEL_PATH_2):
+                print(f"Loading Stage 2 model from: {MODEL_PATH_2}")
+                if MODEL_PATH_2.endswith(".pkl"):
+                    self.model_stage2 = joblib.load(MODEL_PATH_2)
+                elif MODEL_PATH_2.endswith(".h5"):
+                    self.model_stage2 = tf.keras.models.load_model(MODEL_PATH_2)
+                models_loaded.append("Stage 2")
+                print("✅ Stage 2 model loaded successfully")
+            else:
+                models_failed.append("Stage 2 (file not found)")
+        except Exception as e:
+            models_failed.append(f"Stage 2 ({str(e)})")
+            print(f"❌ Failed to load Stage 2 model: {e}")
+
+        # Update status
+        if models_loaded:
+            status_text = f"✅ Loaded: {', '.join(models_loaded)}"
+            if models_failed:
+                status_text += f"\n❌ Failed: {', '.join(models_failed)}"
+            self.model_status_label.setText(status_text)
+            self.statusBar().showMessage(f"Models loaded: {', '.join(models_loaded)}")
+        else:
+            status_text = f"❌ No models loaded!\n{', '.join(models_failed)}"
+            self.model_status_label.setText(status_text)
+            self.statusBar().showMessage("No models available")
 
     def handle_image_drop(self, file_path):
-        if not self.model:
-            self.statusBar().showMessage("Model not loaded.")
+        if not self.model_stage1 and not self.model_stage2:
+            self.statusBar().showMessage("No models loaded.")
             return
+
         pixmap = QPixmap(file_path)
         scaled_pixmap = pixmap.scaled(
             224, 224, Qt.KeepAspectRatio, Qt.SmoothTransformation
@@ -353,11 +550,13 @@ class AnimalClassificationApp(QMainWindow):
         self.prediction_label.setText("Getting Name...")
         self.confidence_label.setText("Acquiring Confidence...")
 
-        self.prediction_thread = PredictionThread(file_path, self.model)
+        self.prediction_thread = PredictionThread(
+            file_path, self.model_stage1, self.model_stage2
+        )
         self.prediction_thread.prediction_ready.connect(self.display_prediction)
         self.prediction_thread.start()
 
-    def display_prediction(self, prediction, confidence):
+    def display_prediction(self, prediction, confidence, details):
         self.progress_bar.hide()
 
         if prediction.startswith("Error"):
@@ -367,9 +566,21 @@ class AnimalClassificationApp(QMainWindow):
         else:
             self.prediction_label.setText(f"🐾 {prediction.title()}")
             self.prediction_label.setStyleSheet("color: #27ae60; margin: 10px;")
-            self.confidence_label.setText(f"Confidence: {confidence:.2%}")
+            self.confidence_label.setText(f"Final Confidence: {confidence:.2%}")
 
-        self.statusBar().showMessage("Classification complete")
+        # Update details
+        self.details_text.setText(details)
+        self.toggle_details_button.show()
+
+        self.statusBar().showMessage("Dual-stage classification complete")
+
+    def toggle_details(self):
+        if self.details_text.isVisible():
+            self.details_text.hide()
+            self.toggle_details_button.setText("Show Details")
+        else:
+            self.details_text.show()
+            self.toggle_details_button.setText("Hide Details")
 
     def clear_results(self):
         self.prediction_label.setText("No prediction yet")
@@ -377,6 +588,9 @@ class AnimalClassificationApp(QMainWindow):
         self.confidence_label.setText("")
         self.image_preview.hide()
         self.progress_bar.hide()
+        self.details_text.hide()
+        self.details_text.clear()
+        self.toggle_details_button.hide()
         self.statusBar().showMessage("Results cleared")
 
 
