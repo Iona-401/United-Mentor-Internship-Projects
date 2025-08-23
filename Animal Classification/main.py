@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import pathlib
+import joblib
 
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
@@ -81,10 +82,10 @@ def efficientNet(num_classes, img_height, img_width, stage):
         [
             layers.Input(shape=(img_height, img_width, 3)),
             # Data Augmentation
-            layers.RandomFlip("horizontal"),
-            layers.RandomRotation(0.15),
-            layers.RandomZoom(0.1),
-            layers.RandomContrast(0.1),
+            # layers.RandomFlip("horizontal"),
+            # layers.RandomRotation(0.15),
+            # layers.RandomZoom(0.1),
+            # layers.RandomContrast(0.1),
             # Preprocessing for EfficientNet
             base_model,
             # Classification Head
@@ -247,17 +248,17 @@ model_CNN.compile(
 # CNN_acc = max(history_CNN.history["val_accuracy"])
 # print(f"\nEnhanced CNN Model Training completed! Validation accuracy: {CNN_acc:.4f}")
 
-model_EF = efficientNet(num_classes, img_height, img_width, stage="stage1")
-model_EF.compile(
+model_EF1 = efficientNet(num_classes, img_height, img_width, stage="stage1")
+model_EF1.compile(
     optimizer=Adam(learning_rate=0.001),
     loss="sparse_categorical_crossentropy",
     metrics=["accuracy"],
 )
 
-history_EF_stage1 = model_EF.fit(
+history_EF_stage1 = model_EF1.fit(
     train_ds,
     validation_data=val_ds,
-    epochs=15,
+    epochs=20,
     verbose=1,
     steps_per_epoch=steps_per_epoch,
     validation_steps=validation_steps,
@@ -268,16 +269,16 @@ print(
     f"\nEfficientNet Stage 1 Training completed! Validation accuracy: {efficientNet_stage1_best_acc:.4f}"
 )
 
-model_EF = efficientNet(num_classes, img_height, img_width, stage="stage2")
-model_EF.compile(
+model_EF2 = efficientNet(num_classes, img_height, img_width, stage="stage2")
+model_EF2.compile(
     optimizer=Adam(learning_rate=0.0001),
     loss="sparse_categorical_crossentropy",
     metrics=["accuracy"],
 )
-history_EF_stage2 = model_EF.fit(
+history_EF_stage2 = model_EF2.fit(
     train_ds,
     validation_data=val_ds,
-    epochs=20,
+    epochs=30,
     verbose=1,
     steps_per_epoch=steps_per_epoch,
     validation_steps=validation_steps,
@@ -288,109 +289,14 @@ print(
     f"\nEfficientNet Stage 2 Training completed! Validation accuracy: {efficientNet_stage2_best_acc:.4f}"
 )
 
-# Combine histories for plotting
-combined_history = {
-    "accuracy": history_EF_stage1.history["accuracy"]
-    + history_EF_stage2.history["accuracy"],
-    "val_accuracy": history_EF_stage1.history["val_accuracy"]
-    + history_EF_stage2.history["val_accuracy"],
-    "loss": history_EF_stage1.history["loss"] + history_EF_stage2.history["loss"],
-    "val_loss": history_EF_stage1.history["val_loss"]
-    + history_EF_stage2.history["val_loss"],
-}
-
-# Save the best performing model (Stage 1 in this case)
-best_model_accuracy = max(efficientNet_stage1_best_acc, efficientNet_stage2_best_acc)
-if efficientNet_stage1_best_acc > efficientNet_stage2_best_acc:
-    print(
-        f"\nSaving Stage 1 model (best performance: {efficientNet_stage1_best_acc:.1%})"
-    )
-    # Recreate the best model for saving
-    best_model = efficientNet(num_classes, img_height, img_width, stage="stage1")
-    best_model.compile(
-        optimizer=Adam(learning_rate=0.001),
-        loss="sparse_categorical_crossentropy",
-        metrics=["accuracy"],
-    )
-    # Note: You'd need to retrain or save during training to get the actual best weights
-    # For now, we'll save the current state
-    best_model.save("models/animal_classifier_efficientnet_best.h5")
-    print("Model saved as 'animal_classifier_efficientnet_best.h5'")
-else:
-    print(
-        f"\nSaving Stage 2 model (best performance: {efficientNet_stage2_best_acc:.1%})"
-    )
-    model_EF.save("models/animal_classifier_efficientnet_best.h5")
-    print("Model saved as 'animal_classifier_efficientnet_best.h5'")
-
-# Create models directory if it doesn't exist
-import os
-
-os.makedirs("models", exist_ok=True)
-
 # Save class names for the UI
 import json
 
-with open("models/class_names.json", "w") as f:
+with open("Animal Classification/class_names.json", "w") as f:
     json.dump(class_names, f)
 print("Class names saved for UI")
 
-# Concise Results Summary
-print("\n" + "-" * 25)
-print("FINAL RESULTS")
-print("-" * 25)
-print(f"Best Model: EfficientNetV2B0 Stage 1 → {efficientNet_stage1_best_acc:.1%}")
-print(f"Enhanced CNN: 40.60%")
-print(f"Improvement over baseline: +{(best_model_accuracy - 0.2474)*100:.1f}%")
-print(f"Model saved and ready for UI deployment!")
-
-# Simple visualization of just the winner
-plt.figure(figsize=(10, 6))
-
-# Plot the winning model's training history
-plt.subplot(1, 2, 1)
-plt.plot(
-    history_EF_stage1.history["accuracy"], label="Training", color="green", linewidth=2
-)
-plt.plot(
-    history_EF_stage1.history["val_accuracy"],
-    label="Validation",
-    color="red",
-    linewidth=2,
-)
-plt.title(
-    f"🏆 Winning Model: EfficientNetV2B0\nBest Validation: {efficientNet_stage1_best_acc:.1%}"
-)
-plt.xlabel("Epoch")
-plt.ylabel("Accuracy")
-plt.legend()
-plt.grid(True, alpha=0.3)
-
-# Final comparison bar chart
-plt.subplot(1, 2, 2)
-models = ["Enhanced\nCNN", "EfficientNet Stage 1\n(Winner)", "EfficientNet Stage 2"]
-accuracies = [0.4060, efficientNet_stage1_best_acc, efficientNet_stage2_best_acc]
-colors = ["#ff9999", "#66b3ff", "#99ff99"]
-bars = plt.bar(models, accuracies, color=colors, edgecolor="black", linewidth=1)
-
-# Add percentage labels on bars
-for bar, acc in zip(bars, accuracies):
-    plt.text(
-        bar.get_x() + bar.get_width() / 2,
-        bar.get_height() + 0.02,
-        f"{acc:.1%}",
-        ha="center",
-        va="bottom",
-        fontweight="bold",
-        fontsize=12,
-    )
-
-plt.title("Model Performance Comparison")
-plt.ylabel("Validation Accuracy")
-plt.ylim(0, 1.1)
-plt.grid(True, alpha=0.3, axis="y")
-
-plt.tight_layout()
-plt.show()
-
-print("\nReady to build the UI! The model is saved and class names are exported.")
+# Saving Models
+joblib.dump(model_EF1, "Animal Classification/aniClass_EFF_Stage1.pkl")
+joblib.dump(model_EF2, "Animal Classification/aniClass_EFF_Stage2.pkl")
+print("Models saved successfully!")

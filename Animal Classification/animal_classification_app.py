@@ -17,8 +17,10 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, QMimeData
 from PyQt5.QtGui import QPixmap, QFont, QDragEnterEvent, QDropEvent
 import tensorflow as tf
 import numpy as np
+import joblib
 from PIL import Image
-import io
+
+MODEL_PATH = "Animal Classification/aniClass_EFF_Stage2.pkl"
 
 
 class PredictionThread(QThread):
@@ -26,7 +28,7 @@ class PredictionThread(QThread):
 
     def __init__(self, image_path, model):
         super().__init__()
-        self.image_path - image_path
+        self.image_path = image_path
         self.model = model
 
     def run(self):
@@ -36,26 +38,27 @@ class PredictionThread(QThread):
             img_array = np.array(img)
             img_array = np.expand_dims(img_array, axis=0)
 
-            prediction = self.model.predict(img_array)
+            # Set model to inference mode (disable augmentation)
+            prediction = self.model(img_array, training=False)
             predicted_class_idx = np.argmax(prediction, axis=1)[0]
             confidence = prediction[0][predicted_class_idx]
 
             animal_classes = [
-                "cat",
-                "dog",
-                "bird",
-                "fish",
-                "horse",
-                "cow",
-                "sheep",
-                "pig",
-                "chicken",
-                "duck",
-                "rabbit",
-                "elephant",
-                "lion",
-                "tiger",
-                "bear",
+                "Bear",
+                "Bird",
+                "Cat",
+                "Cow",
+                "Deer",
+                "Dog",
+                "Dolphin",
+                "Elephant",
+                "Giraffe",
+                "Horse",
+                "Kangaroo",
+                "Lion",
+                "Panda",
+                "Tiger",
+                "Zebra",
             ]
 
             predicted_animal = animal_classes[predicted_class_idx]
@@ -214,33 +217,38 @@ class AnimalClassificationApp(QMainWindow):
             QFrame {
                 border: 2px solid #999;
                 border-radius: 10px;
-                background-color: #white;
+                background-color: white;
                 padding: 20px;
             }
         """
         )
 
+        # Results Section
         results_layout = QVBoxLayout(results_frame)
 
+        # Results Title
         results_title = QLabel("Prediction Results")
         results_title.setFont(QFont("Gothic", 20, QFont.Bold))
         results_title.setStyleSheet("color: #2c3e50; margin-bottom: 10px;")
         results_layout.addWidget(results_title)
 
+        # Prediction Label
         self.prediction_label = QLabel("No Prediction Yet")
         self.prediction_label.setFont(QFont("Gothic", 20))
         self.prediction_label.setStyleSheet("color: #2c3e50; margin-bottom: 10px;")
         self.prediction_label.setAlignment(Qt.AlignCenter)
         results_layout.addWidget(self.prediction_label)
 
+        # Confidence Label
         self.confidence_label = QLabel("")
         self.confidence_label.setFont(QFont("Gothic", 14))
         self.confidence_label.setStyleSheet("color: #2c3e50; margin-bottom: 5px;")
         self.confidence_label.setAlignment(Qt.AlignCenter)
         results_layout.addWidget(self.confidence_label)
 
+        # Progress Bar
         self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 0)  # Indeterminate progress
+        self.progress_bar.setRange(0, 0)
         self.progress_bar.hide()
         results_layout.addWidget(self.progress_bar)
 
@@ -266,3 +274,123 @@ class AnimalClassificationApp(QMainWindow):
             }
         """
         )
+        self.clear_button.clicked.connect(self.clear_results)
+        button_layout.addWidget(self.clear_button)
+
+        right_layout.addLayout(button_layout)
+        content_layout.addLayout(right_layout)
+        main_layout.addLayout(content_layout)
+
+        # Status Bar
+        self.statusBar().showMessage("Load an Image to classify.")
+
+    def load_model(self):
+        try:
+            model_path = MODEL_PATH
+
+            if os.path.exists(model_path):
+                print(f"Loading model from: {model_path}")
+
+                # Check file extension to determine loading method
+                if model_path.endswith(".pkl"):
+                    # Load .pkl file using joblib
+                    self.model = joblib.load(model_path)
+                    print("Loaded .pkl model using joblib")
+                elif model_path.endswith(".h5"):
+                    # Load .h5 file using TensorFlow
+                    self.model = tf.keras.models.load_model(model_path)
+                    print("Loaded .h5 model using TensorFlow")
+                else:
+                    raise ValueError(f"Unsupported model format: {model_path}")
+
+                # DEBUG: Print detailed model info
+                print("=== MODEL DEBUG INFO ===")
+                print(f"Model type: {type(self.model)}")
+
+                # Try to get model info (works for both .h5 and .pkl)
+                try:
+                    if hasattr(self.model, "input_shape"):
+                        print(f"Model input shape: {self.model.input_shape}")
+                        print(f"Model output shape: {self.model.output_shape}")
+                        print(
+                            f"Number of classes in model: {self.model.output_shape[-1]}"
+                        )
+                    else:
+                        print("Model info not available (likely .pkl format)")
+                except Exception as e:
+                    print(f"Could not get model info: {e}")
+
+                print(f"Number of classes in our list: 15")
+
+                # Try to get model summary (only works for TensorFlow models)
+                try:
+                    if hasattr(self.model, "summary"):
+                        self.model.summary()
+                except Exception as e:
+                    print(f"Could not display model summary: {e}")
+                print("========================")
+
+                self.statusBar().showMessage("Model loaded successfully.")
+            else:
+                print(f"Model file not found at: {model_path}")
+                self.statusBar().showMessage(f"Model file not found: {model_path}")
+        except Exception as e:
+            print(f"Error loading model: {str(e)}")
+            self.statusBar().showMessage(f"Error loading model: {str(e)}")
+
+    def handle_image_drop(self, file_path):
+        if not self.model:
+            self.statusBar().showMessage("Model not loaded.")
+            return
+        pixmap = QPixmap(file_path)
+        scaled_pixmap = pixmap.scaled(
+            224, 224, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
+        self.image_preview.setPixmap(scaled_pixmap)
+        self.image_preview.show()
+
+        self.progress_bar.show()
+        self.prediction_label.setText("Getting Name...")
+        self.confidence_label.setText("Acquiring Confidence...")
+
+        self.prediction_thread = PredictionThread(file_path, self.model)
+        self.prediction_thread.prediction_ready.connect(self.display_prediction)
+        self.prediction_thread.start()
+
+    def display_prediction(self, prediction, confidence):
+        self.progress_bar.hide()
+
+        if prediction.startswith("Error"):
+            self.prediction_label.setText(prediction)
+            self.prediction_label.setStyleSheet("color: #e74c3c; margin: 10px;")
+            self.confidence_label.setText("")
+        else:
+            self.prediction_label.setText(f"🐾 {prediction.title()}")
+            self.prediction_label.setStyleSheet("color: #27ae60; margin: 10px;")
+            self.confidence_label.setText(f"Confidence: {confidence:.2%}")
+
+        self.statusBar().showMessage("Classification complete")
+
+    def clear_results(self):
+        self.prediction_label.setText("No prediction yet")
+        self.prediction_label.setStyleSheet("color: #27ae60; margin: 10px;")
+        self.confidence_label.setText("")
+        self.image_preview.hide()
+        self.progress_bar.hide()
+        self.statusBar().showMessage("Results cleared")
+
+
+def main():
+    app = QApplication(sys.argv)
+
+    # Set application style
+    app.setStyle("Fusion")
+
+    window = AnimalClassificationApp()
+    window.show()
+
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
