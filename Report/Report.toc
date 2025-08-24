@@ -1,0 +1,86 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{\numberline {1}Introductions}{4}{section.1}%
+\contentsline {section}{\numberline {2}Literature Review and Background}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Computer Vision in Classification Tasks}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Healthcare Machine Learning Applications}{4}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Methodology and Implementation}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Development Environment and Tools}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Core Libraries and Frameworks}{5}{subsection.3.2}%
+\contentsline {paragraph}{NumPy}{5}{subsection.3.2}%
+\contentsline {paragraph}{Pandas}{5}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Machine Learning Frameworks}{6}{subsubsection.3.2.1}%
+\contentsline {paragraph}{Scikit-learn}{6}{subsubsection.3.2.1}%
+\contentsline {paragraph}{TensorFlow and Keras}{6}{subsubsection.3.2.1}%
+\contentsline {paragraph}{Imbalanced-learn}{6}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Data Visualization}{6}{subsubsection.3.2.2}%
+\contentsline {paragraph}{Matplotlib}{6}{subsubsection.3.2.2}%
+\contentsline {paragraph}{Seaborn}{6}{subsubsection.3.2.2}%
+\contentsline {section}{\numberline {4}Project Implementations}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Heart Disease Prediction System}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Project Overview}{7}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Dataset and Features}{7}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Technical Implementation}{7}{subsection.4.4}%
+\contentsline {paragraph}{Data Preprocessing}{7}{subsection.4.4}%
+\contentsline {paragraph}{Model Selection and Training}{7}{lstnumber.1.11}%
+\contentsline {paragraph}{Feature Engineering}{7}{lstnumber.1.11}%
+\contentsline {subsubsection}{\numberline {4.4.1}Results and Performance}{8}{subsubsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.5}Liver Cirrhosis Staging System}{8}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}Project Overview}{8}{subsubsection.4.5.1}%
+\contentsline {subsubsection}{\numberline {4.5.2}Dataset Characteristics}{8}{subsubsection.4.5.2}%
+\contentsline {subsubsection}{\numberline {4.5.3}Class Imbalance Handling}{8}{subsubsection.4.5.3}%
+\contentsline {paragraph}{SMOTE Implementation}{8}{subsubsection.4.5.3}%
+\contentsline {subsubsection}{\numberline {4.5.4}Advanced Feature Engineering}{9}{subsubsection.4.5.4}%
+\contentsline {subsubsection}{\numberline {4.5.5}Model Architecture}{9}{subsubsection.4.5.5}%
+\contentsline {subsubsection}{\numberline {4.5.6}Performance Metrics}{9}{subsubsection.4.5.6}%
+\contentsline {subsection}{\numberline {4.6}Thyroid Cancer Classification}{9}{subsection.4.6}%
+\contentsline {subsubsection}{\numberline {4.6.1}Project Scope}{9}{subsubsection.4.6.1}%
+\contentsline {subsubsection}{\numberline {4.6.2}Dataset Analysis}{10}{subsubsection.4.6.2}%
+\contentsline {subsubsection}{\numberline {4.6.3}Feature Engineering and Selection}{10}{subsubsection.4.6.3}%
+\contentsline {paragraph}{Recursive Feature Elimination}{10}{subsubsection.4.6.3}%
+\contentsline {subsubsection}{\numberline {4.6.4}Cross-Validation Strategy}{10}{subsubsection.4.6.4}%
+\contentsline {subsubsection}{\numberline {4.6.5}Model Performance}{10}{subsubsection.4.6.5}%
+\contentsline {subsection}{\numberline {4.7}Animal Classification System}{11}{subsection.4.7}%
+\contentsline {subsubsection}{\numberline {4.7.1}Project Architecture}{11}{subsubsection.4.7.1}%
+\contentsline {subsubsection}{\numberline {4.7.2}Deep Learning Implementation}{11}{subsubsection.4.7.2}%
+\contentsline {paragraph}{Transfer Learning Setup}{11}{subsubsection.4.7.2}%
+\contentsline {paragraph}{Data Augmentation Strategy}{11}{lstnumber.7.25}%
+\contentsline {subsubsection}{\numberline {4.7.3}Two-Stage Training Strategy}{12}{subsubsection.4.7.3}%
+\contentsline {paragraph}{Stage 1: Foundation Training}{12}{subsubsection.4.7.3}%
+\contentsline {paragraph}{Stage 2: Fine-tuning}{12}{subsubsection.4.7.3}%
+\contentsline {subsubsection}{\numberline {4.7.4}Model Ensemble and Prediction Consolidation}{12}{subsubsection.4.7.4}%
+\contentsline {subsubsection}{\numberline {4.7.5}Performance Analysis}{13}{subsubsection.4.7.5}%
+\contentsline {section}{\numberline {5}Machine Learning Techniques and Concepts}{13}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Supervised Learning Paradigms}{13}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}Classification Algorithms}{13}{subsubsection.5.1.1}%
+\contentsline {paragraph}{Random Forest}{13}{subsubsection.5.1.1}%
+\contentsline {paragraph}{Support Vector Machines}{14}{subsubsection.5.1.1}%
+\contentsline {paragraph}{Neural Networks}{14}{subsubsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.2}Feature Engineering Techniques}{14}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}Feature Scaling}{14}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}Feature Selection Methods}{14}{subsubsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.3}Data Augmentation Strategies}{15}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Image Augmentation for Deep Learning}{15}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Synthetic Data Generation}{15}{subsubsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.4}Handling Class Imbalance}{15}{subsection.5.4}%
+\contentsline {subsubsection}{\numberline {5.4.1}Sampling Techniques}{15}{subsubsection.5.4.1}%
+\contentsline {subsubsection}{\numberline {5.4.2}Algorithmic Approaches}{15}{subsubsection.5.4.2}%
+\contentsline {section}{\numberline {6}GUI Development and Application Deployment}{15}{section.6}%
+\contentsline {subsection}{\numberline {6.1}PyQt5 Interface Design}{15}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Application Packaging}{16}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Results and Performance Analysis}{16}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Comparative Performance}{16}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Learning Outcomes and Insights}{16}{subsection.7.2}%
+\contentsline {subsubsection}{\numberline {7.2.1}Technical Skills Acquired}{16}{subsubsection.7.2.1}%
+\contentsline {subsubsection}{\numberline {7.2.2}Domain Knowledge Gained}{17}{subsubsection.7.2.2}%
+\contentsline {section}{\numberline {8}Challenges and Solutions}{17}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Technical Challenges}{17}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Lessons Learned}{17}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Future Work and Improvements}{17}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Short-term Enhancements}{17}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Long-term Vision}{18}{subsection.9.2}%
+\contentsline {section}{\numberline {10}Personal Reflections and Learning Journey}{18}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Technical Growth and Skill Development}{18}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Problem-Solving Approach}{18}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Professional Development}{18}{subsection.10.3}%
+\contentsline {section}{\numberline {11}Conclusion}{18}{section.11}%
+\contentsline {section}{\numberline {12}Acknowledgments}{19}{section.12}%

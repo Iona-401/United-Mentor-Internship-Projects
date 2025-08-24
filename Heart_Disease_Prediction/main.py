@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 
 # Load the dataset
-data = pd.read_csv("Heart Disease\dataset.csv")
+data = pd.read_csv("Heart_Disease_Prediction/dataset.csv")
 print(data.head())
 print(data["target"].value_counts())
 
@@ -25,7 +25,9 @@ scaler = StandardScaler()
 scaled_X = scaler.fit_transform(X)
 
 # Splitting the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(scaled_X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(
+    scaled_X, y, test_size=0.2, random_state=42
+)
 
 # Random Forest Classifier
 model = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -34,10 +36,10 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Save the model and scaler
-output_dir = "Heart Disease"
+output_dir = "Heart_Disease_Prediction"
 os.makedirs(output_dir, exist_ok=True)
-joblib.dump(model, "Heart Disease/heart_disease_model.pkl")
-joblib.dump(scaler, "Heart Disease/heart_disease_scaler.pkl")
+joblib.dump(model, "Heart_Disease_Prediction/heart_disease_model.pkl")
+joblib.dump(scaler, "Heart_Disease_Prediction/heart_disease_scaler.pkl")
 
 # Evaluating the rf model
 print("Random Forest Classifier Results:")
@@ -52,15 +54,15 @@ features = X.columns
 sorted_indices = np.argsort(importance)[::-1]
 
 # Plotting the feature importance
-#plt.figure(figsize=(10, 6))
-#sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
-#plt.title("Feature Importance")
-#plt.xlabel("Importance")
-#plt.ylabel("Features")
-#plt.tight_layout()
-#plt.show()
+# plt.figure(figsize=(10, 6))
+# sns.barplot(x=importance[sorted_indices], y=features[sorted_indices])
+# plt.title("Feature Importance")
+# plt.xlabel("Importance")
+# plt.ylabel("Features")
+# plt.tight_layout()
+# plt.show()
 
 # Save the feature importance and coefficients
 importance_df = pd.DataFrame({"Features": X.columns, "Importance": importance})
-importance_path = "Heart Disease/importance.csv"
+importance_path = "Heart_Disease_Prediction/importance.csv"
 importance_df.to_csv(importance_path, index=False)
