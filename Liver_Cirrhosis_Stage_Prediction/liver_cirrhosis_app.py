@@ -973,7 +973,9 @@ class LiverCirrhosisApp(QWidget):
                         # Ensure numeric values are properly converted
                         numeric_value = float(value)
                         if np.isnan(numeric_value) or np.isinf(numeric_value):
-                            raise ValueError(f"Invalid value for {self.get_field_label(key)}")
+                            raise ValueError(
+                                f"Invalid value for {self.get_field_label(key)}"
+                            )
                         input_data.append(numeric_value)
                     except ValueError:
                         raise ValueError(
@@ -990,16 +992,35 @@ class LiverCirrhosisApp(QWidget):
 
             # Create DataFrame with proper data types
             input_df = pd.DataFrame([input_data], columns=feature_names)
-            
+
             # Explicitly set data types to prevent isnan errors
-            numeric_columns = ["N_Days", "Age", "Bilirubin", "Cholesterol", "Albumin", 
-                             "Copper", "Alk_Phos", "SGOT", "Tryglicerides", "Platelets", "Prothrombin"]
-            categorical_columns = ["Status", "Drug", "Sex", "Ascites", "Hepatomegaly", "Spiders", "Edema"]
-            
+            numeric_columns = [
+                "N_Days",
+                "Age",
+                "Bilirubin",
+                "Cholesterol",
+                "Albumin",
+                "Copper",
+                "Alk_Phos",
+                "SGOT",
+                "Tryglicerides",
+                "Platelets",
+                "Prothrombin",
+            ]
+            categorical_columns = [
+                "Status",
+                "Drug",
+                "Sex",
+                "Ascites",
+                "Hepatomegaly",
+                "Spiders",
+                "Edema",
+            ]
+
             for col in numeric_columns:
                 if col in input_df.columns:
                     input_df[col] = input_df[col].astype(np.float64)
-            
+
             for col in categorical_columns:
                 if col in input_df.columns:
                     input_df[col] = input_df[col].astype(np.int64)
