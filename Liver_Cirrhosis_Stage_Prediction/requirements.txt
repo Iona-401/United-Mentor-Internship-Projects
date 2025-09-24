@@ -1,0 +1,28 @@
+# Enhanced Liver Cirrhosis Prediction App v2.0 Dependencies
+
+# Core ML and Data Science
+scikit-learn==1.3.0
+pandas==2.0.3
+numpy==1.24.3
+scipy==1.10.1
+joblib==1.3.2
+
+# GUI Framework
+PyQt5==5.15.9
+
+# Visualization
+matplotlib==3.7.1
+seaborn==0.12.2
+
+# Model Explainability
+shap==0.42.1
+
+# Advanced ML (Optional but recommended)
+xgboost==1.7.6
+
+# Build Tools
+pyinstaller==5.13.0
+
+# Utilities
+pillow==10.0.0
+openpyxl==3.1.2

@@ -3,11 +3,12 @@ from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import collect_submodules
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('aniClass_EFF_Stage1.pkl', '.'), ('aniClass_EFF_Stage2.pkl', '.')]
+datas = [('aniClass_EFF_Stage1.pkl', '.'), ('aniClass_EFF_Stage2.pkl', '.'), ('aniClass_CNN_enhanced.pkl', '.'), ('class_names.json', '.')]
 binaries = []
-hiddenimports = ['tensorflow', 'tensorflow.keras', 'tensorflow.keras.models', 'tensorflow.keras.layers', 'tensorflow.keras.applications', 'tensorflow.keras.applications.efficientnet_v2', 'tensorflow.keras.preprocessing', 'tensorflow.keras.preprocessing.image', 'tensorflow.python', 'tensorflow.python.saved_model', 'keras', 'numpy', 'scipy', 'scipy.special', 'scipy.special._cdflib', 'scipy.linalg', 'scipy.sparse', 'PIL', 'PIL.Image', 'PIL.ImageQt', 'joblib', 'pickle', 'PyQt5', 'PyQt5.QtCore', 'PyQt5.QtWidgets', 'PyQt5.QtGui', 'absl', 'absl.logging', 'google.protobuf', 'h5py', 'tensorboard', 'sklearn.utils._cython_blas', 'sklearn.neighbors.typedefs', 'sklearn.neighbors.quad_tree', 'sklearn.tree._utils']
+hiddenimports = ['tensorflow', 'tensorflow.keras', 'tensorflow.keras.models', 'tensorflow.keras.layers', 'tensorflow.keras.applications', 'tensorflow.keras.applications.efficientnet_v2', 'tensorflow.keras.preprocessing', 'tensorflow.keras.preprocessing.image', 'tensorflow.python', 'tensorflow.python.saved_model', 'keras', 'numpy', 'scipy', 'scipy.special', 'scipy.special._cdflib', 'scipy.linalg', 'scipy.sparse', 'PIL', 'PIL.Image', 'cv2', 'tkinter', 'tkinter.ttk', 'tkinter.filedialog', 'tkinter.messagebox', 'joblib', 'pickle', 'absl', 'absl.logging', 'google.protobuf', 'h5py', 'tensorboard', 'matplotlib', 'matplotlib.pyplot', 'matplotlib.backends.backend_tkagg', 'threading', 'json']
 datas += collect_data_files('tensorflow')
 hiddenimports += collect_submodules('PIL')
+hiddenimports += collect_submodules('tkinter')
 tmp_ret = collect_all('tensorflow')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
@@ -22,7 +23,7 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    noarchive=True,
+    noarchive=False,
     optimize=0,
 )
 pyz = PYZ(a.pure)
@@ -32,9 +33,9 @@ exe = EXE(
     a.scripts,
     a.binaries,
     a.datas,
-    [('v', None, 'OPTION')],
+    [],
     name='Animal_Classification_Dual_Stage',
-    debug=True,
+    debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,

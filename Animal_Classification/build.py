@@ -6,19 +6,22 @@ import shutil
 
 
 def build_animal_classification_app():
-    """Build the dual-stage animal classification app into a standalone executable."""
+    """Build the Enhanced Animal Classification Studio into a standalone executable."""
 
     # Check if required files exist
     required_files = [
         "animal_classification_app.py",
         "aniClass_EFF_Stage1.pkl",  # Stage 1 model
         "aniClass_EFF_Stage2.pkl",  # Stage 2 model
+        "aniClass_CNN_enhanced.pkl",  # Custom CNN model
+        "class_names.json",  # Class names for UI
     ]
 
     # Optional files that enhance the build
     optional_files = [
         "app_icon.ico",  # Custom icon
-        "requirements.txt",  # Dependencies list
+        "model_optimizer.py",  # TensorFlow Lite optimizer
+        "training_metrics.json",  # Training performance data
     ]
 
     # Check for missing required files
@@ -32,9 +35,11 @@ def build_animal_classification_app():
         for file in missing_files:
             print(f"   - {file}")
         print("\nMake sure you have:")
-        print("  - animal_classification_app.py (your dual-stage app)")
+        print("  - animal_classification_app.py (Enhanced Tkinter app)")
         print("  - aniClass_EFF_Stage1.pkl (Stage 1 EfficientNet model)")
         print("  - aniClass_EFF_Stage2.pkl (Stage 2 EfficientNet model)")
+        print("  - aniClass_CNN_enhanced.pkl (Custom CNN model)")
+        print("  - class_names.json (Animal class names)")
         return False
 
     # Check optional files
@@ -77,10 +82,12 @@ def build_animal_classification_app():
             "💡 No custom icon found. To add one, place 'app_icon.ico' in this folder."
         )
 
-    # Add model files as data
+    # Add model files and config as data
     data_files = [
         "--add-data=aniClass_EFF_Stage1.pkl;.",  # Stage 1 model
         "--add-data=aniClass_EFF_Stage2.pkl;.",  # Stage 2 model
+        "--add-data=aniClass_CNN_enhanced.pkl;.",  # Custom CNN model
+        "--add-data=class_names.json;.",  # Class names config
     ]
 
     # Check model file sizes
@@ -94,15 +101,22 @@ def build_animal_classification_app():
         if os.path.exists("aniClass_EFF_Stage2.pkl")
         else 0
     )
+    cnn_size = (
+        os.path.getsize("aniClass_CNN_enhanced.pkl") / (1024 * 1024)
+        if os.path.exists("aniClass_CNN_enhanced.pkl")
+        else 0
+    )
 
-    print(f"📦 Including model files:")
+    print(f"📦 Including files:")
     print(f"   - Stage 1 Model: {stage1_size:.1f} MB")
     print(f"   - Stage 2 Model: {stage2_size:.1f} MB")
-    print(f"   - Total Models: {stage1_size + stage2_size:.1f} MB")
+    print(f"   - Custom CNN Model: {cnn_size:.1f} MB")
+    print(f"   - Class Names Config: class_names.json")
+    print(f"   - Total Models: {stage1_size + stage2_size + cnn_size:.1f} MB")
 
     cmd.extend(data_files)
 
-    # Comprehensive hidden imports for TensorFlow + PyQt5 application
+    # Comprehensive hidden imports for TensorFlow + Tkinter application
     hidden_imports = [
         # Core TensorFlow
         "--hidden-import=tensorflow",
@@ -126,26 +140,29 @@ def build_animal_classification_app():
         # Image processing
         "--hidden-import=PIL",
         "--hidden-import=PIL.Image",
-        "--hidden-import=PIL.ImageQt",
+        "--hidden-import=cv2",
+        # Tkinter GUI framework
+        "--hidden-import=tkinter",
+        "--hidden-import=tkinter.ttk",
+        "--hidden-import=tkinter.filedialog",
+        "--hidden-import=tkinter.messagebox",
         # Model serialization
         "--hidden-import=joblib",
         "--hidden-import=pickle",
-        # PyQt5 GUI framework
-        "--hidden-import=PyQt5",
-        "--hidden-import=PyQt5.QtCore",
-        "--hidden-import=PyQt5.QtWidgets",
-        "--hidden-import=PyQt5.QtGui",
         # Additional TensorFlow dependencies
         "--hidden-import=absl",
         "--hidden-import=absl.logging",
         "--hidden-import=google.protobuf",
         "--hidden-import=h5py",
         "--hidden-import=tensorboard",
-        # Math libraries
-        "--hidden-import=sklearn.utils._cython_blas",
-        "--hidden-import=sklearn.neighbors.typedefs",
-        "--hidden-import=sklearn.neighbors.quad_tree",
-        "--hidden-import=sklearn.tree._utils",
+        # Matplotlib for plotting
+        "--hidden-import=matplotlib",
+        "--hidden-import=matplotlib.pyplot",
+        "--hidden-import=matplotlib.backends.backend_tkagg",
+        # Threading
+        "--hidden-import=threading",
+        # JSON for class names
+        "--hidden-import=json",
     ]
 
     cmd.extend(hidden_imports)
@@ -155,8 +172,8 @@ def build_animal_classification_app():
         "--collect-all=tensorflow",  # Collect all TensorFlow modules
         "--collect-submodules=PIL",  # Collect PIL submodules
         "--collect-data=tensorflow",  # Include TensorFlow data files
+        "--collect-submodules=tkinter",  # Collect Tkinter submodules
         "--noupx",  # Don't use UPX compression (better compatibility)
-        "--debug=all",  # Debug info (remove for production)
     ]
 
     cmd.extend(additional_options)
@@ -226,9 +243,11 @@ def build_animal_classification_app():
             print(f"\n❌ Build failed with return code: {process.returncode}")
             print("\n🔍 Troubleshooting steps:")
             print("1. Check if all dependencies are installed:")
-            print("   pip install tensorflow PyQt5 Pillow numpy joblib pyinstaller")
-            print("2. Try building without --debug=all for cleaner output")
-            print("3. Ensure both model files are in the correct directory")
+            print(
+                "   pip install tensorflow pillow numpy joblib matplotlib pyinstaller"
+            )
+            print("2. Try building without additional debug options for cleaner output")
+            print("3. Ensure all model files are in the correct directory")
             print("4. Check available disk space (build requires ~2-3 GB temporarily)")
             return False
 
@@ -249,11 +268,12 @@ def check_dependencies():
     # Custom import mapping for packages that don't follow standard naming
     package_imports = {
         "tensorflow": "tensorflow",
-        "PyQt5": "PyQt5.QtWidgets",  # Fixed: Import specific module
-        "Pillow": "PIL",  # Fixed: Pillow imports as PIL
+        "tkinter": "tkinter",  # Built-in Python GUI framework
+        "Pillow": "PIL",  # Pillow imports as PIL
         "numpy": "numpy",
         "joblib": "joblib",
-        "pyinstaller": "PyInstaller",  # Fixed: Capital I
+        "pyinstaller": "PyInstaller",  # Capital I
+        "matplotlib": "matplotlib",
     }
 
     missing_packages = []

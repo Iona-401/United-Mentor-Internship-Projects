@@ -1,0 +1,117 @@
+{
+  "timestamp": "2025-09-19T17:59:23.674151",
+  "original_model": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\aniClass_EFF_Stage1.pkl",
+  "original_size_mb": 32.59343433380127,
+  "class_names": [
+    "Bear",
+    "Bird",
+    "Cat",
+    "Cow",
+    "Deer",
+    "Dog",
+    "Dolphin",
+    "Elephant",
+    "Giraffe",
+    "Horse",
+    "Kangaroo",
+    "Lion",
+    "Panda",
+    "Tiger",
+    "Zebra"
+  ],
+  "optimization_results": {
+    "default": {
+      "conversion": {
+        "success": true,
+        "optimization_type": "default",
+        "original_size_mb": 32.59343433380127,
+        "tflite_size_mb": 7.043952941894531,
+        "compression_ratio": 4.627151061721174,
+        "size_reduction_percent": 78.38842979922018,
+        "output_path": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\optimization_aniClass_EFF_Stage1\\animal_classifier_default.tflite"
+      },
+      "benchmark": {
+        "model_path": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\optimization_aniClass_EFF_Stage1\\animal_classifier_default.tflite",
+        "num_runs": 100,
+        "avg_inference_ms": 60.805091857910156,
+        "min_inference_ms": 49.73101615905762,
+        "max_inference_ms": 102.01215744018555,
+        "std_inference_ms": 7.642265641616353,
+        "fps": 16.445991107731707,
+        "input_shape": [
+          1,
+          224,
+          224,
+          3
+        ],
+        "output_shape": [
+          1,
+          15
+        ],
+        "model_size_mb": 7.043952941894531
+      }
+    },
+    "size": {
+      "conversion": {
+        "success": true,
+        "optimization_type": "size",
+        "original_size_mb": 32.59343433380127,
+        "tflite_size_mb": 12.735420227050781,
+        "compression_ratio": 2.5592743508039804,
+        "size_reduction_percent": 60.92642433251222,
+        "output_path": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\optimization_aniClass_EFF_Stage1\\animal_classifier_size.tflite"
+      },
+      "benchmark": {
+        "model_path": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\optimization_aniClass_EFF_Stage1\\animal_classifier_size.tflite",
+        "num_runs": 100,
+        "avg_inference_ms": 58.3376145362854,
+        "min_inference_ms": 47.90496826171875,
+        "max_inference_ms": 95.04413604736328,
+        "std_inference_ms": 8.16797781497786,
+        "fps": 17.141599085749558,
+        "input_shape": [
+          1,
+          224,
+          224,
+          3
+        ],
+        "output_shape": [
+          1,
+          15
+        ],
+        "model_size_mb": 12.735420227050781
+      }
+    },
+    "speed": {
+      "conversion": {
+        "success": true,
+        "optimization_type": "speed",
+        "original_size_mb": 32.59343433380127,
+        "tflite_size_mb": 7.0439605712890625,
+        "compression_ratio": 4.627146050000758,
+        "size_reduction_percent": 78.38840639145513,
+        "output_path": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\optimization_aniClass_EFF_Stage1\\animal_classifier_speed.tflite"
+      },
+      "benchmark": {
+        "model_path": "c:\\Users\\sidli\\Desktop\\UM Internship Projects\\Animal_Classification\\optimization_aniClass_EFF_Stage1\\animal_classifier_speed.tflite",
+        "num_runs": 100,
+        "avg_inference_ms": 82.55296230316162,
+        "min_inference_ms": 69.86021995544434,
+        "max_inference_ms": 116.4696216583252,
+        "std_inference_ms": 8.56488073290784,
+        "fps": 12.11343569147369,
+        "input_shape": [
+          1,
+          224,
+          224,
+          3
+        ],
+        "output_shape": [
+          1,
+          15
+        ],
+        "model_size_mb": 7.0439605712890625
+      }
+    }
+  }
+}
