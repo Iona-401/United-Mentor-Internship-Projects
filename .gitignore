@@ -1,20 +1,89 @@
-CheatSheet1.pdf
-CheatSheet2.pdf
-CheatSheet3.pdf
-Heart Disease/__pycache__/output_page.cpython-39.pyc
-Heart Disease/bulk_test_results.csv
-Lung Cancer/__pycache__/output_page.cpython-39.pyc
-Lung Cancer/bulk_test_results.csv
+# ============================================================================
+# .gitignore for UM Internship Projects - Medical AI Prediction Suite
+# ============================================================================
+
+# Python
+# ======
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+# ===================
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and Editor Files
+# ===================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebooks
+# =================
+.ipynb_checkpoints
+*.ipynb
+
+# Documentation and Media Files (handled by LFS)
+# ==============================================
+# Note: These are tracked by Git LFS, but ignoring working copies
 *.pdf
-Heart Disease/bulk_test.py
 *.png
 *.jpeg
 *.jpg
 *.gif
 *.webp
-FinalProject_AUSWeather.ipynb
-Lung Cancer/temp.py
-Lung Cancer/temp_model.py
+*.mp4
+*.avi
+*.mov
+
+# Temporary and Test Files
+# =======================
+temp.py
+temp_model.py
+**/temp_*
+**/test_temp*
+bulk_test.py
+bulk_test_results.csv
+
+# PyInstaller Build Artifacts
+# ===========================
+# Note: dist/ and build/ are tracked by LFS for final executables
+# but we ignore intermediate build files
+*.spec.backup
+build_temp/
+pyinstaller_cache/
+
+# Project Archives and Compressed Files
+# =====================================
+# Legacy project archives (no longer needed)
 Projects-20240722T093004Z-001.zip
 Projects/animal_classification.zip
 Projects/ASL_detection.zip
@@ -27,4 +96,49 @@ Projects/mobile_phone_pricing.zip
 Projects/thyroid_cancer.zip
 Projects/vehicle_price_prediction.zip
 Animal Classification/animal_classification.zip
+
+# Specific Project Files
+# =====================
+# Cheat sheets and reference materials
+CheatSheet1.pdf
+CheatSheet2.pdf
+CheatSheet3.pdf
+Cheatsheet4.pdf
+
+# Final project files
+FinalProject_AUSWeather.ipynb
 Unified_Mentor_ML_Intern_Feedback.mp4
+
+# Logs and Debug Files
+# ===================
+*.log
+debug.log
+error.log
+indent.log
+
+# Machine Learning Artifacts
+# ==========================
+# Note: .pkl model files are tracked by LFS
+# Ignoring temporary ML artifacts
+**/optimization_*/
+**/plots/temp_*
+**/temp_metrics.*
+**/debug_metrics.*
+
+# Operating System Files
+# ======================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup Files
+# ============
+*.bak
+*.backup
+*~
+*.tmp
+*.temp
