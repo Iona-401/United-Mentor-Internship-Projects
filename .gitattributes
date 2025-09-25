@@ -1,16 +1,66 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-Thyroid_Cancer_Predictor.pkg filter=lfs diff=lfs merge=lfs -text
-Thyroid_Cancer_Predictor.exe filter=lfs diff=lfs merge=lfs -text
-C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/thyroid_cancer/build/Thyroid_Cancer_Predictor/Thyroid_Cancer_Predictor.pkg filter=lfs diff=lfs merge=lfs -text
-C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/thyroid_cancer/dist/Thyroid_Cancer_Predictor.exe filter=lfs diff=lfs merge=lfs -text
-random_forest_thyroid_cancer_model.pkl filter=lfs diff=lfs merge=lfs -text
-C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/thyroid_cancer/random_forest_thyroid_cancer_model.pkl filter=lfs diff=lfs merge=lfs -text
-.pkl filter=lfs diff=lfs merge=lfs -text
-C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/liver_cirrhosis_stage/xgboost_liver_cirrhosis_model.pkl filter=lfs diff=lfs merge=lfs -text
-C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/Heart[[:space:]]Disease/heart_disease_model.pkl filter=lfs diff=lfs merge=lfs -text
-C:/Users/sidli/Desktop/UM[[:space:]]Internship[[:space:]]Projects/Heart[[:space:]]Disease/heart_disease_scaler.pkl filter=lfs diff=lfs merge=lfs -text
-*.pkl filter=lfs diff=lfs merge=lfs -text
+
+# Git LFS tracking for large files
+# ================================
+
+# All executable files
 *.exe filter=lfs diff=lfs merge=lfs -text
+
+# All model files
+*.pkl filter=lfs diff=lfs merge=lfs -text
+
+# All dataset files  
 *.csv filter=lfs diff=lfs merge=lfs -text
+
+# PyInstaller package files
 *.pkg filter=lfs diff=lfs merge=lfs -text
+
+# Specific executable files for each project
+# ==========================================
+
+# Thyroid Cancer Prediction
+Thyroid_Cancer_Prediction/dist/Thyroid_Cancer_Recurrence_Predictor.exe filter=lfs diff=lfs merge=lfs -text
+
+# Heart Disease Prediction  
+Heart_Disease_Prediction/dist/Heart_Disease_Predictor.exe filter=lfs diff=lfs merge=lfs -text
+
+# Liver Cirrhosis Stage Prediction
+Liver_Cirrhosis_Stage_Prediction/dist/Enhanced_Liver_Cirrhosis_Predictor_v2.exe filter=lfs diff=lfs merge=lfs -text
+Liver_Cirrhosis_Stage_Prediction/dist/LiverCirrhosis_Minimal.exe filter=lfs diff=lfs merge=lfs -text
+
+# Animal Classification
+Animal_Classification/dist/Animal_Classification_Dual_Stage.exe filter=lfs diff=lfs merge=lfs -text
+
+# Additional large files that might be generated
+# ==============================================
+
+# Archive files (project zips and PyInstaller libraries)
+*.zip filter=lfs diff=lfs merge=lfs -text
+**/build/**/base_library.zip filter=lfs diff=lfs merge=lfs -text
+
+# PyInstaller spec files (configuration files)
+*.spec filter=lfs diff=lfs merge=lfs -text
+
+# Large image files and datasets
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text  
+*.png filter=lfs diff=lfs merge=lfs -text
+*.webp filter=lfs diff=lfs merge=lfs -text
+
+# Video files
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+
+# Large document files
+*.pdf filter=lfs diff=lfs merge=lfs -text
+
+# Any other large binary files
+*.bin filter=lfs diff=lfs merge=lfs -text
+*.dat filter=lfs diff=lfs merge=lfs -text
+*.h5 filter=lfs diff=lfs merge=lfs -text
+*.hdf5 filter=lfs diff=lfs merge=lfs -text
+
+# Build directories (entire directories)
+build/ filter=lfs diff=lfs merge=lfs -text
+dist/ filter=lfs diff=lfs merge=lfs -text
