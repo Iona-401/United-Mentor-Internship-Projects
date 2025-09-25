@@ -76,10 +76,12 @@ bulk_test_results.csv
 # PyInstaller Build Artifacts
 # ===========================
 # Note: dist/ and build/ are tracked by LFS for final executables
-# but we ignore intermediate build files
+# but we ignore intermediate build files and large exe files that exceed LFS quota
 *.spec.backup
 build_temp/
 pyinstaller_cache/
+# Ignore large executable files that cause LFS quota issues
+**/dist/*.exe
 
 # Project Archives and Compressed Files
 # =====================================
