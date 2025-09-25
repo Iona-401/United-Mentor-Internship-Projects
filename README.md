@@ -26,11 +26,12 @@ This repository contains **4 AI prediction applications** built using machine le
 
 ### 3. ❤️‍🩹 **Liver Cirrhosis Stage Classification**
 - **Folder**: `Liver_Cirrhosis_Stage_Prediction/`
-- **Model**: Optimized Random Forest with GridSearchCV
-- **Accuracy**: 95.5% (after parameter tuning)
-- **Features**: 18 clinical and laboratory parameters
-- **Executable**: `Liver_Cirrhosis_Predictor.exe` (193.6 MB)
-- **Status**: ✅ **Production Ready**
+- **Model**: XGBoost (95.8% F1-Score) with Random Forest fallback
+- **Accuracy**: 95.8% F1-Score, 95.32% test accuracy
+- **Features**: 18 clinical and laboratory parameters (11 numerical, 7 categorical)
+- **GUI Status**: ✅ **Fully Functional** (prediction errors resolved)
+- **Core ML**: ✅ **Complete** with comprehensive evaluation metrics
+- **Status**: 🔧 **Core Ready** (building disabled, functionality perfected)
 
 ### 4. 😺 **Animal Classification (Dual-Stage AI)**
 - **Folder**: `Animal_Classification/`
@@ -68,12 +69,12 @@ This repository contains **4 AI prediction applications** built using machine le
 
 ## 📊 Performance Metrics
 
-| Project | Model | Accuracy | Executable Size | Status |
-|---------|--------|----------|----------------|---------|
-| Thyroid Cancer | Random Forest | 96%+ | 232.6 MB | ✅ Ready |
-| Heart Disease | Random Forest | High | 165.3 MB | ✅ Ready |
-| Liver Cirrhosis | Random Forest | 95.5% | 193.6 MB | ✅ Ready |
-| Animal Classification | Dual-Stage EfficientNetV2B0 | High | 577.5 MB | ✅ Ready |
+| Project | Model | Accuracy | GUI Status | Core ML Status |
+|---------|--------|----------|------------|----------------|
+| Thyroid Cancer | Random Forest | 96%+ | ✅ Production Ready | ✅ Complete |
+| Heart Disease | Random Forest | High | ✅ Production Ready | ✅ Complete |
+| Liver Cirrhosis | XGBoost/RandomForest | 95.8% F1 | ✅ Fully Functional | ✅ Complete |
+| Animal Classification | Dual-Stage EfficientNetV2B0 | High | ✅ Production Ready | ✅ Complete |
 
 ## 🏗 Project Structure
 
@@ -97,13 +98,18 @@ UM Internship Projects/
 │   ├── heart_disease_scaler.pkl
 │   └── dist/Heart_Disease_Predictor.exe
 │
-├── liver_cirrhosis_stage/
-│   ├── main.py                              # Model training script
-│   ├── liver_cirrhosis_app.py              # GUI application
-│   ├── build.py                            # Executable build script
-│   ├── liver_cirrhosis.csv                 # Training data
-│   ├── random_forest_liver_cirrhosis_model.pkl
-│   └── dist/Liver_Cirrhosis_Predictor.exe
+├── Liver_Cirrhosis_Stage_Prediction/
+│   ├── liver_cirrhosis_main.py             # Enhanced model training script
+│   ├── liver_cirrhosis_app.py              # Professional PyQt5 GUI application
+│   ├── test_values_and_models.py           # Comprehensive testing suite
+│   ├── debug_prediction.py                 # Prediction debugging tools
+│   ├── build.py & minimal_build.py         # Executable build scripts
+│   ├── liver_cirrhosis.csv                 # Training dataset (25,000 samples)
+│   ├── best_liver_cirrhosis_model.pkl      # XGBoost pipeline (95.8% F1)
+│   ├── random_forest_liver_cirrhosis_model.pkl # Random Forest fallback
+│   ├── preprocessor.pkl                     # Full preprocessing pipeline
+│   ├── evaluation_metrics.png              # Comprehensive performance plots
+│   └── requirements.txt                     # Dependencies list
 │
 ├── Animal_Classification/
 │   ├── main.py                              # Model training script
@@ -120,11 +126,23 @@ UM Internship Projects/
 ## 🚀 Quick Start Guide
 
 ### **For End Users**
-1. Navigate to any project's `dist/` folder
+1. Navigate to any project's `dist/` folder (or run `.py` apps directly)
 2. Double-click the `.exe` file to launch the application
 3. Enter patient parameters in the GUI
 4. Click "Predict" to get risk assessment
-5. No software installation required!
+5. No software installation required for executables!
+
+### **Testing Liver Cirrhosis Application**
+Use these **validated test values** in the GUI:
+```
+N_Days: 500        | Age: 45           | Sex: F
+Status: C          | Drug: Placebo     | Ascites: N
+Hepatomegaly: N    | Spiders: N        | Edema: N
+Bilirubin: 1.2     | Cholesterol: 250  | Albumin: 3.8
+Copper: 80         | Alk_Phos: 1200    | SGOT: 120
+Tryglicerides: 150 | Platelets: 300    | Prothrombin: 11.0
+```
+**Expected Result**: Cirrhosis stage prediction with confidence percentages
 
 #### **Prerequisites**
 ```bash
@@ -186,10 +204,12 @@ python build.py
 - **Clinical Value**: Early intervention and prevention strategies
 
 ### **Liver Cirrhosis Application**
-- **Use Case**: Disease staging and prognosis assessment
-- **Target Users**: Hepatologists, gastroenterologists
-- **Key Parameters**: Laboratory values, imaging results, clinical symptoms
-- **Clinical Value**: Treatment selection and liver transplant evaluation
+- **Use Case**: Disease staging and prognosis assessment (3 stages: Early, Moderate, Advanced)
+- **Target Users**: Hepatologists, gastroenterologists, liver specialists
+- **Key Parameters**: 18 clinical features including bilirubin, albumin, ascites, copper levels, liver enzymes
+- **Clinical Value**: Treatment selection, liver transplant evaluation, disease monitoring
+- **Technical Features**: SHAP explainability, confidence scoring, risk factor analysis
+- **Current Status**: ✅ GUI fully functional, predictions working correctly with comprehensive test suite
 
 ### **Animal Classification Application**
 - **Use Case**: Computer vision research and educational demonstrations
@@ -199,8 +219,16 @@ python build.py
 
 ## 🔬 Research & Development Notes
 
+### **Recent Updates (September 2025)**
+- ✅ **Liver Cirrhosis Project Enhanced**: Fixed prediction errors, improved data type handling
+- ✅ **Comprehensive Testing Suite**: Added test_values_and_models.py with realistic medical test cases
+- ✅ **Debug Tools Created**: debug_prediction.py for troubleshooting prediction functionality
+- ✅ **GUI Stability Improved**: Resolved "ufunc 'isnan' not supported" errors through robust type conversion
+- ✅ **Model Performance Validated**: XGBoost achieving 95.8% F1-Score with proper evaluation metrics
+
 ### **Algorithm Selection Rationale**
-- **Random Forest chosen** over XGBoost for better PyInstaller compatibility
+- **XGBoost selected** for Liver Cirrhosis (95.8% F1-Score) with Random Forest fallback
+- **Random Forest chosen** for other projects due to PyInstaller compatibility
 - **Ensemble methods** provide robust predictions with medical data
 - **Interpretability** important for clinical decision support
 - **Class balancing** critical for medical datasets with rare positive outcomes
@@ -216,6 +244,9 @@ python build.py
 - **File path resolution**: PyInstaller temporary directory handling
 - **GUI threading**: Responsive interface during predictions
 - **Error handling**: Medical application reliability requirements
+- **Data type conversion**: Fixed mixed GUI input types causing prediction errors
+- **XGBoost compatibility**: Resolved PyInstaller conflicts while maintaining model performance
+- **Prediction pipeline**: Robust preprocessing with proper NaN/infinite value handling
 
 ### **Short Term (Current Sprint)**
 - 📱 **Mobile Compatibility**: Explore cross-platform deployment

@@ -364,7 +364,7 @@ def quick_build_liver_cirrhosis_app():
         "--icon=app_icon.ico",
     ]
 
-    # Add essential data files (correct paths)
+    # Add essential data files
     data_files = [
         "liver_cirrhosis.csv",
         "random_forest_liver_cirrhosis_model.pkl",
